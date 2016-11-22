@@ -2002,7 +2002,7 @@ REAL PrintBendTorsionEnergyStatus(int nr,char *string,int BendTorsionType,REAL *
 
 void PrintVDWEnergyStatus(int nr,char *string,int typeA,int typeB,REAL r,REAL energy)
 {
-  REAL arg1,arg2,arg3,arg4,arg5,arg6,arg7;
+  REAL arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11,arg12,arg13;
   REAL f6,f8,f10;
 
   switch(PotentialType[typeA][typeB])
@@ -2831,6 +2831,169 @@ void PrintVDWEnergyStatus(int nr,char *string,int typeA,int typeB,REAL r,REAL en
           f6*ENERGY_TO_KELVIN,
           f8*ENERGY_TO_KELVIN,
           f10*ENERGY_TO_KELVIN,
+          r,
+          energy*ENERGY_TO_KELVIN,
+          energy*ENERGY_TO_KJ_PER_MOL,
+          energy*ENERGY_TO_KCAL_PER_MOL);
+      break;
+    case MEDFF:
+      // (p_0/r+p_1+p_2*r+p_3*r^2+p_4*r^3)*exp(-p_5*r)+(p_6/r+p_7)*exp(-p_8*r)-f_6*p_9/r^6-f_8*p_10/r^8
+      // ======================================================================================
+      // p_0/k_B [K A]
+      // p_1/k_B [K]
+      // p_2/k_B [K A^-1]
+      // p_3/k_B [K A^-2]
+      // p_4/k_B [K A^-3]
+      // p_5     [A^-1]
+      // p_6/k_B [K A]
+      // p_7/k_B [K]
+      // p_8     [A^-1]
+      // p_9/k_B [K A^6]
+      // p_10/k_B[K A^8]
+      // p_11    [A^-1]
+      // p_12/k_B[K]  (non-zero for a shifted potential)
+      arg1=PotentialParms[typeA][typeB][0];
+      arg2=PotentialParms[typeA][typeB][1];
+      arg3=PotentialParms[typeA][typeB][2];
+      arg4=PotentialParms[typeA][typeB][3];
+      arg5=PotentialParms[typeA][typeB][4];
+      arg6=PotentialParms[typeA][typeB][5];
+      arg7=PotentialParms[typeA][typeB][6];
+      arg8=PotentialParms[typeA][typeB][7];
+      arg9=PotentialParms[typeA][typeB][8];
+      arg10=PotentialParms[typeA][typeB][9];
+      arg11=PotentialParms[typeA][typeB][10];
+      arg12=PotentialParms[typeA][typeB][11];
+      arg13=PotentialParms[typeA][typeB][12];
+      ComputeDampingCoefficients(r,arg12,&f6,&f8,&f10);
+      fprintf(OutputFilePtr[CurrentSystem],"%4d MEDFF %s, p_0/k_B: %8.5lf [K A], p_1/k_B: %8.5lf [K], p_2/k_B: %8.5lf [K A^-1], "
+                            "p_3/k_B: %8.5lf [K A^-2], p_4/k_B: %8.5lf [K A^-3], p_5: %8.5lf [A^-1], "
+                            "p_6/k_B: %8.5lf [K A], p_7/k_B: %8.5lf [K], p_8: %8.5lf [A^-1], p_9/k_B: %8.5lf [K A^6], "
+                            "p_10/k_B: %8.5lf [K A^8], p_11: %8.5lf [A^-1], "
+                            "f_6/k_B=%8.5f [K], f_8/k_B=%8.5f [K], shift/k_B=%8.5f [K], Distance %8.5f [A], Energy: %10.5f [K] %8.5f [kJ/mol] %8.5f [kcal/mol]\n",
+          nr++,
+          string,
+          arg1*ENERGY_TO_KELVIN,
+          arg2*ENERGY_TO_KELVIN,
+          arg3*ENERGY_TO_KELVIN,
+          arg4*ENERGY_TO_KELVIN,
+          arg5*ENERGY_TO_KELVIN,
+          arg6,
+          arg7*ENERGY_TO_KELVIN,
+          arg8*ENERGY_TO_KELVIN,
+          arg9,
+          arg10*ENERGY_TO_KELVIN,
+          arg11*ENERGY_TO_KELVIN,
+          arg12,
+          f6*ENERGY_TO_KELVIN,
+          f8*ENERGY_TO_KELVIN,
+          arg13*ENERGY_TO_KELVIN,
+          r,
+          energy*ENERGY_TO_KELVIN,
+          energy*ENERGY_TO_KJ_PER_MOL,
+          energy*ENERGY_TO_KCAL_PER_MOL);
+      break;
+    case MEDFF_SMOOTHED3:
+      // {(p_0/r+p_1+p_2*r+p_3*r^2+p_4*r^3)*exp(-p_5*r)+(p_6/r+p_7)*exp(-p_8*r)-f_6*p_9/r^6-f_8*p_10/r^8}*S(r)
+      // ======================================================================================
+      // p_0/k_B [K A]
+      // p_1/k_B [K]
+      // p_2/k_B [K A^-1]
+      // p_3/k_B [K A^-2]
+      // p_4/k_B [K A^-3]
+      // p_5     [A^-1]
+      // p_6/k_B [K A]
+      // p_7/k_B [K]
+      // p_8     [A^-1]
+      // p_9/k_B [K A^6]
+      // p_10/k_B[K A^8]
+      // p_11    [A^-1]
+      arg1=PotentialParms[typeA][typeB][0];
+      arg2=PotentialParms[typeA][typeB][1];
+      arg3=PotentialParms[typeA][typeB][2];
+      arg4=PotentialParms[typeA][typeB][3];
+      arg5=PotentialParms[typeA][typeB][4];
+      arg6=PotentialParms[typeA][typeB][5];
+      arg7=PotentialParms[typeA][typeB][6];
+      arg8=PotentialParms[typeA][typeB][7];
+      arg9=PotentialParms[typeA][typeB][8];
+      arg10=PotentialParms[typeA][typeB][9];
+      arg11=PotentialParms[typeA][typeB][10];
+      arg12=PotentialParms[typeA][typeB][11];
+      fprintf(OutputFilePtr[CurrentSystem],"%4d MEDFF %s, p_0/k_B: %8.5lf [K A], p_1/k_B: %8.5lf [K], p_2/k_B: %8.5lf [K A^-1], "
+                            "p_3/k_B: %8.5lf [K A^-2], p_4/k_B: %8.5lf [K A^-3], p_5: %8.5lf [A^-1], "
+                            "p_6/k_B: %8.5lf [K A], p_7/k_B: %8.5lf [K], p_8: %8.5lf [A^-1], p_9/k_B: %8.5lf [K A^6], "
+                            "p_10/k_B: %8.5lf [K A^8], p_11: %8.5lf [A^-1], "
+                            "f_6/k_B=%8.5f [K], f_8/k_B=%8.5f [K], Distance %8.5f [A], Energy: %10.5f [K] %8.5f [kJ/mol] %8.5f [kcal/mol]\n",
+          nr++,
+          string,
+          arg1*ENERGY_TO_KELVIN,
+          arg2*ENERGY_TO_KELVIN,
+          arg3*ENERGY_TO_KELVIN,
+          arg4*ENERGY_TO_KELVIN,
+          arg5*ENERGY_TO_KELVIN,
+          arg6,
+          arg7*ENERGY_TO_KELVIN,
+          arg8*ENERGY_TO_KELVIN,
+          arg9,
+          arg10*ENERGY_TO_KELVIN,
+          arg11*ENERGY_TO_KELVIN,
+          arg12,
+          f6*ENERGY_TO_KELVIN,
+          f8*ENERGY_TO_KELVIN,
+          r,
+          energy*ENERGY_TO_KELVIN,
+          energy*ENERGY_TO_KJ_PER_MOL,
+          energy*ENERGY_TO_KCAL_PER_MOL);
+      break;
+    case MEDFF_SMOOTHED5:
+      // {(p_0/r+p_1+p_2*r+p_3*r^2+p_4*r^3)*exp(-p_5*r)+(p_6/r+p_7)*exp(-p_8*r)-f_6*p_9/r^6-f_8*p_10/r^8}*S(r)
+      // ======================================================================================
+      // p_0/k_B [K A]
+      // p_1/k_B [K]
+      // p_2/k_B [K A^-1]
+      // p_3/k_B [K A^-2]
+      // p_4/k_B [K A^-3]
+      // p_5     [A^-1]
+      // p_6/k_B [K A]
+      // p_7/k_B [K]
+      // p_8     [A^-1]
+      // p_9/k_B [K A^6]
+      // p_10/k_B[K A^8]
+      // p_11    [A^-1]
+      arg1=PotentialParms[typeA][typeB][0];
+      arg2=PotentialParms[typeA][typeB][1];
+      arg3=PotentialParms[typeA][typeB][2];
+      arg4=PotentialParms[typeA][typeB][3];
+      arg5=PotentialParms[typeA][typeB][4];
+      arg6=PotentialParms[typeA][typeB][5];
+      arg7=PotentialParms[typeA][typeB][6];
+      arg8=PotentialParms[typeA][typeB][7];
+      arg9=PotentialParms[typeA][typeB][8];
+      arg10=PotentialParms[typeA][typeB][9];
+      arg11=PotentialParms[typeA][typeB][10];
+      arg12=PotentialParms[typeA][typeB][11];
+      fprintf(OutputFilePtr[CurrentSystem],"%4d MEDFF %s, p_0/k_B: %8.5lf [K A], p_1/k_B: %8.5lf [K], p_2/k_B: %8.5lf [K A^-1], "
+                            "p_3/k_B: %8.5lf [K A^-2], p_4/k_B: %8.5lf [K A^-3], p_5: %8.5lf [A^-1], "
+                            "p_6/k_B: %8.5lf [K A], p_7/k_B: %8.5lf [K], p_8: %8.5lf [A^-1], p_9/k_B: %8.5lf [K A^6], "
+                            "p_10/k_B: %8.5lf [K A^8], p_11: %8.5lf [A^-1], "
+                            "f_6/k_B=%8.5f [K], f_8/k_B=%8.5f [K], Distance %8.5f [A], Energy: %10.5f [K] %8.5f [kJ/mol] %8.5f [kcal/mol]\n",
+          nr++,
+          string,
+          arg1*ENERGY_TO_KELVIN,
+          arg2*ENERGY_TO_KELVIN,
+          arg3*ENERGY_TO_KELVIN,
+          arg4*ENERGY_TO_KELVIN,
+          arg5*ENERGY_TO_KELVIN,
+          arg6,
+          arg7*ENERGY_TO_KELVIN,
+          arg8*ENERGY_TO_KELVIN,
+          arg9,
+          arg10*ENERGY_TO_KELVIN,
+          arg11*ENERGY_TO_KELVIN,
+          arg12,
+          f6*ENERGY_TO_KELVIN,
+          f8*ENERGY_TO_KELVIN,
           r,
           energy*ENERGY_TO_KELVIN,
           energy*ENERGY_TO_KJ_PER_MOL,

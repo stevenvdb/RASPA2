@@ -932,6 +932,61 @@ The general expression for Van der Waals potentials when using a cutoff distance
   5 arguments: $p_0/k_B$ in units of K, $p_1$ in units of \AA$^{-1}$, $p_2/k_B$ in units of K\,\AA$^{6}$,
   $p_3/k_B$ in units of K\,\AA$^{8}$, and $p_4/k_B$ in units of K\,\AA$^{10}$.
 
+\item{$\begin{array}{l}\text{MEDFF}\\
+      \text{MEDFF\_SMOOTHED3}\\
+      \text{MEDFF\_SMOOTHED5}\end{array}$}\\
+The MEDFF potential \cite{Vandenbrande2016}
+  \begin{equation}
+    U= \left[ \frac{p_0}{r} + p_1 + p_2r + p_3r^2 +p_4 r^3 \right] e^{-p_5r} + \left[ \frac{p_6}{r} + p_7 \right] e^{-p_8r} - f_6\frac{p_9}{r^6} - f_8\frac{p_{10}}{r^8}
+  \end{equation}
+  with
+  \begin{equation}
+   f_{2n}=1-\sum_{k=0}^{2n}\frac{\left(p_{11} r_{ij}\right)^k}{k!} e^{-p_{11} r_{ij}}
+  \end{equation}
+  12 arguments: $p_0/k_B$ in units of K\,\AA, $p_1/k_B$ in units of K, $p_2/k_B$ in units of K\,\AA$^{-1}$,
+    $p_3/k_B$ in units of K\,\AA$^{-2}$, $p_4/k_B$ in units of K\,\AA$^{-3}$, $p_{5}$ in units of \AA$^{-1}$,
+    $p_6/k_B$ in units of K\,\AA, $p_7/k_B$ in units of K, $p_{8}$ in units of \AA$^{-1}$,
+    $p_9/k_B$ in units of K\,\AA$^{6}$, $p_{10}/k_B$ in units of K\,\AA$^{8}$, and $p_{11}$ in units of \AA$^{-1}$.
+\par Note that the $12$ parameters are not all independent, but are computed based on atoms-in-molecules properties. Next to these atoms-in-molecules properties, there are three interaction parameters $U_{\mathrm{exch,rep}}$, $U_{\mathrm{ind}}$ and $U_{\mathrm{s_8}}$ needed to calculate the following expressions:
+  \begin{align}
+    p_0 &= N_AZ_B-N_AN_B\frac{\sigma_{A}^4}{(\sigma_{A}^2-\sigma_{B}^2)^2}\left( 1 - \frac{2\sigma_{B}^2}{\sigma_{A}^2-\sigma_{B}^2} \right)  +  U_{\mathrm{exch,rep}}\frac{N_AN_B}{8\pi} \frac{4\sigma_{A}^2\sigma_{B}^2}{(\sigma_{B}^2-\sigma_{A}^2)^3}\\
+    p_1 &= \frac{N_AZ_B}{2\sigma_{A}} - \frac{N_AN_B}{2\sigma_{A}}\frac{\sigma_{A}^4}{(\sigma_{A}^2-\sigma_{B}^2)^2} +  U_{\mathrm{exch,rep}}\frac{N_AN_B}{8\pi} \frac{\sigma_{A}}{(\sigma_{B}^2-\sigma_{A}^2)^2}\\
+    p_2 &= 0 \\
+    p_3 &= 0 \\
+    p_4 &= 0 \\
+    p_5 &= \frac{1}{\sigma_{A}} \\
+    p_6 &= Z_AN_B-N_AN_B\frac{\sigma_{B}^4}{(\sigma_{B}^2-\sigma_{A}^2)^2}\left( 1 - \frac{2\sigma_{A}^2}{\sigma_{B}^2-\sigma_{A}^2} \right)  +  U_{\mathrm{exch,rep}}\frac{N_AN_B}{8\pi} \frac{4\sigma_{B}^2\sigma_{A}^2}{(\sigma_{A}^2-\sigma_{B}^2)^3}\\
+    p_7 &= \frac{Z_AN_B}{2\sigma_{B}} - \frac{N_AN_B}{2\sigma_{B}}\frac{\sigma_{B}^4}{(\sigma_{B}^2-\sigma_{A}^2)^2} +  U_{\mathrm{exch,rep}}\frac{N_AN_B}{8\pi} \frac{\sigma_{B}}{(\sigma_{A}^2-\sigma_{B}^2)^2}\\
+    p_8 &= \frac{1}{\sigma_{B}} \\
+    p_9 &= \frac{2C_6^AC_6^B}{\frac{\alpha^B}{\alpha^A}C_6^A+\frac{\alpha_A}{\alpha_B}C_6^B} \\
+    p_{10} &= \frac{3}{2}\frac{2C_6^AC_6^B}{\frac{\alpha^B}{\alpha^A}C_6^A+\frac{\alpha_A}{\alpha_B}C_6^B}\sqrt{\frac{<r_A^4>}{<r_A^2>} + \frac{<r_B^4>}{<r_B^2>} } \\
+    p_{11} &= \frac{2}{\sigma_{A}+\sigma_{B}}
+  \end{align}
+  where $N_A$ and $N_B$ are the populations of the MBIS valence shells, $Z_A$ and $Z_B$ are the effective core charges and $\sigma_{A}$ and $\sigma_{B}$ are the widths of the MBIS valence shells. In the case where $\sigma_{A} \approx \sigma_{B}$, some of the above expressions show numerical instabilities. The following formulas can be used in that case:
+  \begin{align}
+    p_0 &= N_AZ_B-N_AN_B\\
+    p_1 &= \frac{N_AZ_B}{2\sigma_{A}} - \frac{N_AN_B}{\sigma_{A}}\left(\frac{11}{16} + 5\frac{\sigma_{B}-\sigma_{A}}{32\sigma_{A}} \right) +  U_{\mathrm{exch,rep}}\frac{N_AN_B}{384\pi\sigma_{A}^3} \left( 6 -9\frac{\sigma_{B}-\sigma_{A}}{\sigma_{A}} \right) \\
+    p_2 &=  \frac{N_AN_B}{\sigma_{A}^2}\left(\frac{3}{16} + 5\frac{\sigma_{B}-\sigma_{A}}{32\sigma_{A}} \right) +  U_{\mathrm{exch,rep}}\frac{N_AN_B}{384\pi\sigma_{A}^4} \left( 6 -9\frac{\sigma_{B}-\sigma_{A}}{\sigma_{A}} \right) \\
+    p_3 &=  \frac{N_AN_B}{\sigma_{A}^3}\left(\frac{1}{48} + \frac{\sigma_{B}-\sigma_{A}}{16\sigma_{A}} \right) +  U_{\mathrm{exch,rep}}\frac{N_AN_B}{384\pi\sigma_{A}^5} \left( 2 - 2\frac{\sigma_{B}-\sigma_{A}}{\sigma_{A}} \right) \\
+    p_4 &=  \frac{N_AN_B}{\sigma_{A}^4}\left(\frac{\sigma_{B}-\sigma_{A}}{96\sigma_{A}} \right) +  U_{\mathrm{exch,rep}}\frac{N_AN_B}{384\pi\sigma_{A}^6} \left(\frac{\sigma_{B}-\sigma_{A}}{\sigma_{A}} \right) \\
+    p_5 &= \frac{1}{\sigma_{A}} \\
+    p_6 &= Z_AN_B\\
+    p_7 &= \frac{Z_AN_B}{2\sigma_{B}}\\
+    p_8 &= \frac{1}{\sigma_{B}} \\
+    p_9 &= \frac{2C_6^AC_6^B}{\frac{\alpha^B}{\alpha^A}C_6^A+\frac{\alpha_A}{\alpha_B}C_6^B} \\
+    p_{10} &= \frac{3}{2}\frac{2C_6^AC_6^B}{\frac{\alpha^B}{\alpha^A}C_6^A+\frac{\alpha_A}{\alpha_B}C_6^B}\sqrt{\frac{<r_A^4>}{<r_A^2>} + \frac{<r_B^4>}{<r_B^2>} } \\
+    p_{11} &= \frac{2}{\sigma_{A}+\sigma_{B}}
+  \end{align}
+
+\item{$\begin{array}{l}\text{HYDRATED\_ION\_WATER}\\
+      \text{HYDRATED\_ION\_WATER\_SMOOTHED3}\\
+      \text{HYDRATED\_ION\_WATER\_SMOOTHED5}\end{array}$}\\
+  \begin{equation}
+    U= p_0 e^{-p_1 r}-\frac{p_2}{r^4}-\frac{p_3}{r^6}-\frac{p_4}{r^{12}}
+  \end{equation}
+  5 arguments: $p_0/k_B$ in units of K, $p_1$ in units of \AA$^{-1}$, $p_2/k_B$ in units of K\,\AA$^{4}$,
+  $p_3/k_B$ in units of K\,\AA$^{6}$, and $p_4/k_B$ in units of K\,\AA$^{12}$.
+
 \item{$\begin{array}{l}\text{HYDRATED\_ION\_WATER}\\
       \text{HYDRATED\_ION\_WATER\_SMOOTHED3}\\
       \text{HYDRATED\_ION\_WATER\_SMOOTHED5}\end{array}$}\\

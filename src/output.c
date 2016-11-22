@@ -3238,6 +3238,110 @@ void PrintPreSimulationStatusCurrentSystem(int system)
               (double)PotentialParms[i][j][3]*ENERGY_TO_KELVIN,
               (double)PotentialParms[i][j][4]*ENERGY_TO_KELVIN);
             break;
+          case MEDFF:
+            // (p_0/r+p_1+p_2*r+p_3*r^2+p_4*r^3)*exp(-p_5*r)+(p_6/r+p_7)*exp(-p_8*r)-f_6*p_9/r^6-f_8*p_10/r^8
+            // ======================================================================================
+            // p_0/k_B [K A]
+            // p_1/k_B [K]
+            // p_2/k_B [K A^-1]
+            // p_3/k_B [K A^-2]
+            // p_4/k_B [K A^-3]
+            // p_5     [A^-1]
+            // p_6/k_B [K A]
+            // p_7/k_B [K]
+            // p_8     [A^-1]
+            // p_9/k_B [K A^6]
+            // p_10/k_B[K A^8]
+            // p_11    [A^-1]
+            // p_12/k_B[K]  (non-zero for a shifted potential)
+            fprintf(FilePtr,"%7s - %7s [MEDFF] p_0/k_B: %8.5lf [K A], p_1/k_B: %8.5lf [K], p_2/k_B: %8.5lf [K A^-1], "
+                            "p_3/k_B: %8.5lf [K A^-2], p_4/k_B: %8.5lf [K A^-3], p_5: %8.5lf [A^-1], "
+                            "p_6/k_B: %8.5lf [K A], p_7/k_B: %8.5lf [K], p_8: %8.5lf [A^-1], p_9/k_B: %8.5lf [K A^6], "
+                            "p_10/k_B: %8.5lf [K A^8], p_11: %8.5lf [A^-1], shift/k_B: %8.5lf [K]\n",
+              PseudoAtoms[i].Name,
+              PseudoAtoms[j].Name,
+              (double)PotentialParms[i][j][0]*ENERGY_TO_KELVIN,
+              (double)PotentialParms[i][j][1]*ENERGY_TO_KELVIN,
+              (double)PotentialParms[i][j][2]*ENERGY_TO_KELVIN,
+              (double)PotentialParms[i][j][3]*ENERGY_TO_KELVIN,
+              (double)PotentialParms[i][j][4]*ENERGY_TO_KELVIN,
+              (double)PotentialParms[i][j][5],
+              (double)PotentialParms[i][j][6]*ENERGY_TO_KELVIN,
+              (double)PotentialParms[i][j][7]*ENERGY_TO_KELVIN,
+              (double)PotentialParms[i][j][8],
+              (double)PotentialParms[i][j][9]*ENERGY_TO_KELVIN,
+              (double)PotentialParms[i][j][10]*ENERGY_TO_KELVIN,
+              (double)PotentialParms[i][j][11],
+              (double)PotentialParms[i][j][12]*ENERGY_TO_KELVIN);
+            break;
+          case MEDFF_SMOOTHED3:
+            // {(p_0/r+p_1+p_2*r+p_3*r^2+p_4*r^3)*exp(-p_5*r)+(p_6/r+p_7)*exp(-p_8*r)-f_6*p_9/r^6-f_8*p_10/r^8}*S(r)
+            // ======================================================================================
+            // p_0/k_B [K A]
+            // p_1/k_B [K]
+            // p_2/k_B [K A^-1]
+            // p_3/k_B [K A^-2]
+            // p_4/k_B [K A^-3]
+            // p_5     [A^-1]
+            // p_6/k_B [K A]
+            // p_7/k_B [K]
+            // p_8     [A^-1]
+            // p_9/k_B [K A^6]
+            // p_10/k_B[K A^8]
+            // p_11    [A^-1]
+            fprintf(FilePtr,"%7s - %7s [MEDFF] p_0/k_B: %8.5lf [K A], p_1/k_B: %8.5lf [K], p_2/k_B: %8.5lf [K A^-1], "
+                            "p_3/k_B: %8.5lf [K A^-2], p_4/k_B: %8.5lf [K A^-3], p_5: %8.5lf [A^-1], "
+                            "p_6/k_B: %8.5lf [K A], p_7/k_B: %8.5lf [K], p_8: %8.5lf [A^-1], p_9/k_B: %8.5lf [K A^6], "
+                            "p_10/k_B: %8.5lf [K A^8], p_11: %8.5lf [A^-1]\n",
+              PseudoAtoms[i].Name,
+              PseudoAtoms[j].Name,
+              (double)PotentialParms[i][j][0]*ENERGY_TO_KELVIN,
+              (double)PotentialParms[i][j][1]*ENERGY_TO_KELVIN,
+              (double)PotentialParms[i][j][2]*ENERGY_TO_KELVIN,
+              (double)PotentialParms[i][j][3]*ENERGY_TO_KELVIN,
+              (double)PotentialParms[i][j][4]*ENERGY_TO_KELVIN,
+              (double)PotentialParms[i][j][5],
+              (double)PotentialParms[i][j][6]*ENERGY_TO_KELVIN,
+              (double)PotentialParms[i][j][7]*ENERGY_TO_KELVIN,
+              (double)PotentialParms[i][j][8],
+              (double)PotentialParms[i][j][9]*ENERGY_TO_KELVIN,
+              (double)PotentialParms[i][j][10]*ENERGY_TO_KELVIN,
+              (double)PotentialParms[i][j][11]);
+            break;
+          case MEDFF_SMOOTHED5:
+            // {(p_0/r+p_1+p_2*r+p_3*r^2+p_4*r^3)*exp(-p_5*r)+(p_6/r+p_7)*exp(-p_8*r)-f_6*p_9/r^6-f_8*p_10/r^8}*S(r)
+            // ======================================================================================
+            // p_0/k_B [K A]
+            // p_1/k_B [K]
+            // p_2/k_B [K A^-1]
+            // p_3/k_B [K A^-2]
+            // p_4/k_B [K A^-3]
+            // p_5     [A^-1]
+            // p_6/k_B [K A]
+            // p_7/k_B [K]
+            // p_8     [A^-1]
+            // p_9/k_B [K A^6]
+            // p_10/k_B[K A^8]
+            // p_11    [A^-1]
+            fprintf(FilePtr,"%7s - %7s [MEDFF] p_0/k_B: %8.5lf [K A], p_1/k_B: %8.5lf [K], p_2/k_B: %8.5lf [K A^-1], "
+                            "p_3/k_B: %8.5lf [K A^-2], p_4/k_B: %8.5lf [K A^-3], p_5: %8.5lf [A^-1], "
+                            "p_6/k_B: %8.5lf [K A], p_7/k_B: %8.5lf [K], p_8: %8.5lf [A^-1], p_9/k_B: %8.5lf [K A^6], "
+                            "p_10/k_B: %8.5lf [K A^8], p_11: %8.5lf [A^-1]\n",
+              PseudoAtoms[i].Name,
+              PseudoAtoms[j].Name,
+              (double)PotentialParms[i][j][0]*ENERGY_TO_KELVIN,
+              (double)PotentialParms[i][j][1]*ENERGY_TO_KELVIN,
+              (double)PotentialParms[i][j][2]*ENERGY_TO_KELVIN,
+              (double)PotentialParms[i][j][3]*ENERGY_TO_KELVIN,
+              (double)PotentialParms[i][j][4]*ENERGY_TO_KELVIN,
+              (double)PotentialParms[i][j][5],
+              (double)PotentialParms[i][j][6]*ENERGY_TO_KELVIN,
+              (double)PotentialParms[i][j][7]*ENERGY_TO_KELVIN,
+              (double)PotentialParms[i][j][8],
+              (double)PotentialParms[i][j][9]*ENERGY_TO_KELVIN,
+              (double)PotentialParms[i][j][10]*ENERGY_TO_KELVIN,
+              (double)PotentialParms[i][j][11]);
+            break;
           case HYDRATED_ION_WATER:
             // p_0*exp(-p_1*r)-p_2/r^4-p_3/r^6-p_4/r^12
             // ======================================================================================

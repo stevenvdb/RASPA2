@@ -233,7 +233,7 @@ void ChangeVDWtoCFVDW(void)
 
 void ParseForceFieldSelfParameters(char *Arguments,int i,char *PotentialName)
 {
-  double arg1,arg2,arg3,arg4,arg5,arg6;
+  double arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11,arg12;
 
   // zero potential
   if((strcasecmp(PotentialName,"NONE")==0)||(strcasecmp(PotentialName,"ZERO_POTENTIAL")==0))
@@ -1151,6 +1151,107 @@ void ParseForceFieldSelfParameters(char *Arguments,int i,char *PotentialName)
     PotentialParms[i][i][4]=arg5*KELVIN_TO_ENERGY;
     PotentialParms[i][i][5]=(REAL)0.0;
   }
+  // (p_0/r+p_1+p_2*r+p_3*r^2+p_4*r^3)*exp(-p_5*r)+(p_6/r+p_7)*exp(-p_8*r)-f_6*p_9/r^6-f_8*p_10/r^8
+  // ======================================================================================
+  // p_0/k_B [K A]
+  // p_1/k_B [K]
+  // p_2/k_B [K A^-1]
+  // p_3/k_B [K A^-2]
+  // p_4/k_B [K A^-3]
+  // p_5     [A^-1]
+  // p_6/k_B [K A]
+  // p_7/k_B [K]
+  // p_8     [A^-1]
+  // p_9/k_B [K A^6]
+  // p_10/k_B[K A^8]
+  // p_11    [A^-1]
+  // p_12/k_B[K]  (non-zero for a shifted potential)
+  if((strcasecmp(PotentialName,"MEDFF")==0))
+  {
+    PotentialType[i][i]=MEDFF;
+    sscanf(Arguments,"%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",&arg1,&arg2,&arg3,&arg4,&arg5,&arg6,&arg7,&arg8,&arg9,&arg10,&arg11,&arg12);
+    PotentialParms[i][i][0]=arg1*KELVIN_TO_ENERGY;
+    PotentialParms[i][i][1]=arg2*KELVIN_TO_ENERGY;
+    PotentialParms[i][i][2]=arg3*KELVIN_TO_ENERGY;
+    PotentialParms[i][i][3]=arg4*KELVIN_TO_ENERGY;
+    PotentialParms[i][i][4]=arg5*KELVIN_TO_ENERGY;
+    PotentialParms[i][i][5]=arg6;
+    PotentialParms[i][i][6]=arg7*KELVIN_TO_ENERGY;
+    PotentialParms[i][i][7]=arg8*KELVIN_TO_ENERGY;
+    PotentialParms[i][i][8]=arg9;
+    PotentialParms[i][i][9]=arg10*KELVIN_TO_ENERGY;
+    PotentialParms[i][i][10]=arg11*KELVIN_TO_ENERGY;
+    PotentialParms[i][i][11]=arg12;
+    PotentialParms[i][i][12]=(REAL)0.0;
+  }
+  // {(p_0/r+p_1+p_2*r+p_3*r^2+p_4*r^3)*exp(-p_5*r)+(p_6/r+p_7)*exp(-p_8*r)-f_6*p_9/r^6-f_8*p_10/r^8}*S(r)
+  // ======================================================================================
+  // p_0/k_B [K A]
+  // p_1/k_B [K]
+  // p_2/k_B [K A^-1]
+  // p_3/k_B [K A^-2]
+  // p_4/k_B [K A^-3]
+  // p_5     [A^-1]
+  // p_6/k_B [K A]
+  // p_7/k_B [K]
+  // p_8     [A^-1]
+  // p_9/k_B [K A^6]
+  // p_10/k_B[K A^8]
+  // p_11    [A^-1]
+  if((strcasecmp(PotentialName,"MEDFF_SMOOTHED3")==0))
+  {
+    TailCorrection[i][i]=FALSE;
+    ShiftPotential[i][i]=FALSE;
+    PotentialType[i][i]=MEDFF_SMOOTHED3;
+    sscanf(Arguments,"%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",&arg1,&arg2,&arg3,&arg4,&arg5,&arg6,&arg7,&arg8,&arg9,&arg10,&arg11,&arg12);
+    PotentialParms[i][i][0]=arg1*KELVIN_TO_ENERGY;
+    PotentialParms[i][i][1]=arg2*KELVIN_TO_ENERGY;
+    PotentialParms[i][i][2]=arg3*KELVIN_TO_ENERGY;
+    PotentialParms[i][i][3]=arg4*KELVIN_TO_ENERGY;
+    PotentialParms[i][i][4]=arg5*KELVIN_TO_ENERGY;
+    PotentialParms[i][i][5]=arg6;
+    PotentialParms[i][i][6]=arg7*KELVIN_TO_ENERGY;
+    PotentialParms[i][i][7]=arg8*KELVIN_TO_ENERGY;
+    PotentialParms[i][i][8]=arg9;
+    PotentialParms[i][i][9]=arg10*KELVIN_TO_ENERGY;
+    PotentialParms[i][i][10]=arg11*KELVIN_TO_ENERGY;
+    PotentialParms[i][i][11]=arg12;
+    PotentialParms[i][i][12]=(REAL)0.0;
+  }
+  // {(p_0/r+p_1+p_2*r+p_3*r^2+p_4*r^3)*exp(-p_5*r)+(p_6/r+p_7)*exp(-p_8*r)-f_6*p_9/r^6-f_8*p_10/r^8}*S(r)
+  // ======================================================================================
+  // p_0/k_B [K A]
+  // p_1/k_B [K]
+  // p_2/k_B [K A^-1]
+  // p_3/k_B [K A^-2]
+  // p_4/k_B [K A^-3]
+  // p_5     [A^-1]
+  // p_6/k_B [K A]
+  // p_7/k_B [K]
+  // p_8     [A^-1]
+  // p_9/k_B [K A^6]
+  // p_10/k_B[K A^8]
+  // p_11    [A^-1]
+  if((strcasecmp(PotentialName,"MEDFF_SMOOTHED5")==0))
+  {
+    TailCorrection[i][i]=FALSE;
+    ShiftPotential[i][i]=FALSE;
+    PotentialType[i][i]=MEDFF_SMOOTHED5;
+    sscanf(Arguments,"%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",&arg1,&arg2,&arg3,&arg4,&arg5,&arg6,&arg7,&arg8,&arg9,&arg10,&arg11,&arg12);
+    PotentialParms[i][i][0]=arg1*KELVIN_TO_ENERGY;
+    PotentialParms[i][i][1]=arg2*KELVIN_TO_ENERGY;
+    PotentialParms[i][i][2]=arg3*KELVIN_TO_ENERGY;
+    PotentialParms[i][i][3]=arg4*KELVIN_TO_ENERGY;
+    PotentialParms[i][i][4]=arg5*KELVIN_TO_ENERGY;
+    PotentialParms[i][i][5]=arg6;
+    PotentialParms[i][i][6]=arg7*KELVIN_TO_ENERGY;
+    PotentialParms[i][i][7]=arg8*KELVIN_TO_ENERGY;
+    PotentialParms[i][i][8]=arg9;
+    PotentialParms[i][i][9]=arg10*KELVIN_TO_ENERGY;
+    PotentialParms[i][i][10]=arg11*KELVIN_TO_ENERGY;
+    PotentialParms[i][i][11]=arg12;
+    PotentialParms[i][i][12]=(REAL)0.0;
+  }
   // p_0*exp(-p_1*r)-p_2/r^4-p_3/r^6-p_4/r^12
   // ======================================================================================
   // p_0/k_B [K]
@@ -1367,7 +1468,7 @@ void ParseForceFieldSelfParameters(char *Arguments,int i,char *PotentialName)
 
 void ParseForceFieldBinaryParameters(char *Arguments,int i,int j,char *PotentialName)
 {
-  double arg1,arg2,arg3,arg4,arg5,arg6;
+  double arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11,arg12;
 
   // zero potential
   if(strcasecmp(PotentialName,"None")==0)
@@ -2552,6 +2653,149 @@ void ParseForceFieldBinaryParameters(char *Arguments,int i,int j,char *Potential
     PotentialParms[i][j][4]=(arg5*KELVIN_TO_ENERGY);
     PotentialParms[j][i][5]=(REAL)0.0;
     PotentialParms[i][j][5]=(REAL)0.0;
+  }
+  // (p_0/r+p_1+p_2*r+p_3*r^2+p_4*r^3)*exp(-p_5*r)+(p_6/r+p_7)*exp(-p_8*r)-f_6*p_9/r^6-f_8*p_10/r^8
+  // ======================================================================================
+  // p_0/k_B [K A]
+  // p_1/k_B [K]
+  // p_2/k_B [K A^-1]
+  // p_3/k_B [K A^-2]
+  // p_4/k_B [K A^-3]
+  // p_5     [A^-1]
+  // p_6/k_B [K A]
+  // p_7/k_B [K]
+  // p_8     [A^-1]
+  // p_9/k_B [K A^6]
+  // p_10/k_B[K A^8]
+  // p_11    [A^-1]
+  // p_12/k_B[K]  (non-zero for a shifted potential)
+  if((strcasecmp(PotentialName,"MEDFF")==0))
+  {
+    PotentialType[i][j]=MEDFF;
+    PotentialType[j][i]=MEDFF;
+    sscanf(Arguments,"%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",&arg1,&arg2,&arg3,&arg4,&arg5,&arg6,&arg7,&arg8,&arg9,&arg10,&arg11,&arg12);
+    PotentialParms[i][j][0]=arg1*KELVIN_TO_ENERGY;
+    PotentialParms[j][i][0]=arg1*KELVIN_TO_ENERGY;
+    PotentialParms[i][j][1]=arg2*KELVIN_TO_ENERGY;
+    PotentialParms[j][i][1]=arg2*KELVIN_TO_ENERGY;
+    PotentialParms[i][j][2]=arg3*KELVIN_TO_ENERGY;
+    PotentialParms[j][i][2]=arg3*KELVIN_TO_ENERGY;
+    PotentialParms[i][j][3]=arg4*KELVIN_TO_ENERGY;
+    PotentialParms[j][i][3]=arg4*KELVIN_TO_ENERGY;
+    PotentialParms[i][j][4]=arg5*KELVIN_TO_ENERGY;
+    PotentialParms[j][i][4]=arg5*KELVIN_TO_ENERGY;
+    PotentialParms[i][j][5]=arg6;
+    PotentialParms[j][i][5]=arg6;
+    PotentialParms[i][j][6]=arg7*KELVIN_TO_ENERGY;
+    PotentialParms[j][i][6]=arg7*KELVIN_TO_ENERGY;
+    PotentialParms[i][j][7]=arg8*KELVIN_TO_ENERGY;
+    PotentialParms[j][i][7]=arg8*KELVIN_TO_ENERGY;
+    PotentialParms[i][j][8]=arg9;
+    PotentialParms[j][i][8]=arg9;
+    PotentialParms[i][j][9]=arg10*KELVIN_TO_ENERGY;
+    PotentialParms[j][i][9]=arg10*KELVIN_TO_ENERGY;
+    PotentialParms[i][j][10]=arg11*KELVIN_TO_ENERGY;
+    PotentialParms[j][i][10]=arg11*KELVIN_TO_ENERGY;
+    PotentialParms[i][j][11]=arg12;
+    PotentialParms[j][i][11]=arg12;
+    PotentialParms[i][j][12]=(REAL)0.0;
+    PotentialParms[j][i][12]=(REAL)0.0;
+  }
+  // {(p_0/r+p_1+p_2*r+p_3*r^2+p_4*r^3)*exp(-p_5*r)+(p_6/r+p_7)*exp(-p_8*r)-f_6*p_9/r^6-f_8*p_10/r^8}*S(r)
+  // ======================================================================================
+  // p_0/k_B [K A]
+  // p_1/k_B [K]
+  // p_2/k_B [K A^-1]
+  // p_3/k_B [K A^-2]
+  // p_4/k_B [K A^-3]
+  // p_5     [A^-1]
+  // p_6/k_B [K A]
+  // p_7/k_B [K]
+  // p_8     [A^-1]
+  // p_9/k_B [K A^6]
+  // p_10/k_B[K A^8]
+  // p_11    [A^-1]
+  if((strcasecmp(PotentialName,"MEDFF_SMOOTHED3")==0))
+  {
+    TailCorrection[i][j]=TailCorrection[j][i]=FALSE;
+    ShiftPotential[i][j]=ShiftPotential[j][i]=FALSE;
+    PotentialType[i][j]=MEDFF_SMOOTHED3;
+    PotentialType[j][i]=MEDFF_SMOOTHED3;
+    sscanf(Arguments,"%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",&arg1,&arg2,&arg3,&arg4,&arg5,&arg6,&arg7,&arg8,&arg9,&arg10,&arg11,&arg12);
+    PotentialParms[i][j][0]=arg1*KELVIN_TO_ENERGY;
+    PotentialParms[j][i][0]=arg1*KELVIN_TO_ENERGY;
+    PotentialParms[i][j][1]=arg2*KELVIN_TO_ENERGY;
+    PotentialParms[j][i][1]=arg2*KELVIN_TO_ENERGY;
+    PotentialParms[i][j][2]=arg3*KELVIN_TO_ENERGY;
+    PotentialParms[j][i][2]=arg3*KELVIN_TO_ENERGY;
+    PotentialParms[i][j][3]=arg4*KELVIN_TO_ENERGY;
+    PotentialParms[j][i][3]=arg4*KELVIN_TO_ENERGY;
+    PotentialParms[i][j][4]=arg5*KELVIN_TO_ENERGY;
+    PotentialParms[j][i][4]=arg5*KELVIN_TO_ENERGY;
+    PotentialParms[i][j][5]=arg6;
+    PotentialParms[j][i][5]=arg6;
+    PotentialParms[i][j][6]=arg7*KELVIN_TO_ENERGY;
+    PotentialParms[j][i][6]=arg7*KELVIN_TO_ENERGY;
+    PotentialParms[i][j][7]=arg8*KELVIN_TO_ENERGY;
+    PotentialParms[j][i][7]=arg8*KELVIN_TO_ENERGY;
+    PotentialParms[i][j][8]=arg9;
+    PotentialParms[j][i][8]=arg9;
+    PotentialParms[i][j][9]=arg10*KELVIN_TO_ENERGY;
+    PotentialParms[j][i][9]=arg10*KELVIN_TO_ENERGY;
+    PotentialParms[i][j][10]=arg11*KELVIN_TO_ENERGY;
+    PotentialParms[j][i][10]=arg11*KELVIN_TO_ENERGY;
+    PotentialParms[i][j][11]=arg12;
+    PotentialParms[j][i][11]=arg12;
+    PotentialParms[i][j][12]=(REAL)0.0;
+    PotentialParms[j][i][12]=(REAL)0.0;
+  }
+  // {(p_0/r+p_1+p_2*r+p_3*r^2+p_4*r^3)*exp(-p_5*r)+(p_6/r+p_7)*exp(-p_8*r)-f_6*p_9/r^6-f_8*p_10/r^8}*S(r)
+  // ======================================================================================
+  // p_0/k_B [K A]
+  // p_1/k_B [K]
+  // p_2/k_B [K A^-1]
+  // p_3/k_B [K A^-2]
+  // p_4/k_B [K A^-3]
+  // p_5     [A^-1]
+  // p_6/k_B [K A]
+  // p_7/k_B [K]
+  // p_8     [A^-1]
+  // p_9/k_B [K A^6]
+  // p_10/k_B[K A^8]
+  // p_11    [A^-1]
+  if((strcasecmp(PotentialName,"MEDFF_SMOOTHED5")==0))
+  {
+    TailCorrection[i][j]=TailCorrection[j][i]=FALSE;
+    ShiftPotential[i][j]=ShiftPotential[j][i]=FALSE;
+    PotentialType[i][j]=MEDFF_SMOOTHED5;
+    PotentialType[j][i]=MEDFF_SMOOTHED5;
+    sscanf(Arguments,"%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",&arg1,&arg2,&arg3,&arg4,&arg5,&arg6,&arg7,&arg8,&arg9,&arg10,&arg11,&arg12);
+    PotentialParms[i][j][0]=arg1*KELVIN_TO_ENERGY;
+    PotentialParms[j][i][0]=arg1*KELVIN_TO_ENERGY;
+    PotentialParms[i][j][1]=arg2*KELVIN_TO_ENERGY;
+    PotentialParms[j][i][1]=arg2*KELVIN_TO_ENERGY;
+    PotentialParms[i][j][2]=arg3*KELVIN_TO_ENERGY;
+    PotentialParms[j][i][2]=arg3*KELVIN_TO_ENERGY;
+    PotentialParms[i][j][3]=arg4*KELVIN_TO_ENERGY;
+    PotentialParms[j][i][3]=arg4*KELVIN_TO_ENERGY;
+    PotentialParms[i][j][4]=arg5*KELVIN_TO_ENERGY;
+    PotentialParms[j][i][4]=arg5*KELVIN_TO_ENERGY;
+    PotentialParms[i][j][5]=arg6;
+    PotentialParms[j][i][5]=arg6;
+    PotentialParms[i][j][6]=arg7*KELVIN_TO_ENERGY;
+    PotentialParms[j][i][6]=arg7*KELVIN_TO_ENERGY;
+    PotentialParms[i][j][7]=arg8*KELVIN_TO_ENERGY;
+    PotentialParms[j][i][7]=arg8*KELVIN_TO_ENERGY;
+    PotentialParms[i][j][8]=arg9;
+    PotentialParms[j][i][8]=arg9;
+    PotentialParms[i][j][9]=arg10*KELVIN_TO_ENERGY;
+    PotentialParms[j][i][9]=arg10*KELVIN_TO_ENERGY;
+    PotentialParms[i][j][10]=arg11*KELVIN_TO_ENERGY;
+    PotentialParms[j][i][10]=arg11*KELVIN_TO_ENERGY;
+    PotentialParms[i][j][11]=arg12;
+    PotentialParms[j][i][11]=arg12;
+    PotentialParms[i][j][12]=(REAL)0.0;
+    PotentialParms[j][i][12]=(REAL)0.0;
   }
   // p_0*exp(-p_1*r)-p_2/r^4-p_3/r^6-p_4/r^12
   // ======================================================================================
@@ -5115,7 +5359,7 @@ void ReadForceFieldDefinitions(void)
 void ComputePotentialShifts(void)
 {
   int i,j;
-  REAL arg3,arg4,arg5,arg6,arg7;
+  REAL arg3,arg4,arg5,arg6,arg7,arg13;
 
   for(i=0;i<NumberOfPseudoAtoms;i++)
     for(j=i;j<NumberOfPseudoAtoms;j++)
@@ -5328,6 +5572,17 @@ void ComputePotentialShifts(void)
           break;
         case PELLENQ_NICHOLSON_SMOOTHED3:
         case PELLENQ_NICHOLSON_SMOOTHED5:
+          break;
+        case MEDFF:
+          if(ShiftPotential[i][j])
+            arg13=PotentialValue(i,j,CutOffVDWSquared,1.0);
+          else
+            arg13=(REAL)0.0;
+          PotentialParms[j][i][12]=arg13;
+          PotentialParms[i][j][12]=arg13;
+          break;
+        case MEDFF_SMOOTHED3:
+        case MEDFF_SMOOTHED5:
           break;
         case HYDRATED_ION_WATER:
           if(ShiftPotential[i][j])
@@ -5685,7 +5940,7 @@ void ComputeDampingCoefficientsSecondDerivatives(REAL r, REAL b,REAL *f6,REAL *f
 REAL PotentialValue(int typeA,int typeB,REAL rr,REAL scaling)
 {
   REAL r,U,rri3,rri3_2,rri5;
-  REAL arg1,arg2,arg3,arg4,arg5,arg6,arg7;
+  REAL arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11,arg12,arg13;
   REAL ri6,ri9;
   REAL exp1,exp2,exp_term,P;
   REAL f6,f8,f10;
@@ -6710,6 +6965,125 @@ REAL PotentialValue(int typeA,int typeB,REAL rr,REAL scaling)
         return SwitchingValue*(arg1*exp(-arg2*r)-f6*arg3*rri6-f8*arg4*rri8-f10*arg5*rri10);
       }
       return arg1*exp(-arg2*r)-f6*arg3*rri6-f8*arg4*rri8-f10*arg5*rri10;
+    case MEDFF:
+      // (p_0/r+p_1+p_2*r+p_3*r^2+p_4*r^3)*exp(-p_5*r)+(p_6/r+p_7)*exp(-p_8*r)-f_6*p_9/r^6-f_8*p_10/r^8
+      // ======================================================================================
+      // p_0/k_B [K A]
+      // p_1/k_B [K]
+      // p_2/k_B [K A^-1]
+      // p_3/k_B [K A^-2]
+      // p_4/k_B [K A^-3]
+      // p_5     [A^-1]
+      // p_6/k_B [K A]
+      // p_7/k_B [K]
+      // p_8     [A^-1]
+      // p_9/k_B [K A^6]
+      // p_10/k_B[K A^8]
+      // p_11    [A^-1]
+      // p_12/k_B[K]  (non-zero for a shifted potential)
+      arg1=PotentialParms[typeA][typeB][0];
+      arg2=PotentialParms[typeA][typeB][1];
+      arg3=PotentialParms[typeA][typeB][2];
+      arg4=PotentialParms[typeA][typeB][3];
+      arg5=PotentialParms[typeA][typeB][4];
+      arg6=PotentialParms[typeA][typeB][5];
+      arg7=PotentialParms[typeA][typeB][6];
+      arg8=PotentialParms[typeA][typeB][7];
+      arg9=PotentialParms[typeA][typeB][8];
+      arg10=PotentialParms[typeA][typeB][9];
+      arg11=PotentialParms[typeA][typeB][10];
+      arg12=PotentialParms[typeA][typeB][11];
+      arg13=PotentialParms[typeA][typeB][12];
+      r=sqrt(rr);
+      ComputeDampingCoefficients(r,arg12,&f6,&f8,&f10);
+      rri2=1.0/rr;
+      rri4=rri2*rri2;
+      rri6=rri4*rri2;
+      rri8=rri6*rri2;
+/*      fprintf(stdout,"exp argument %f r = %f poly = %f %f %f\n",arg6*r,r,arg2,arg3*r,arg4*r*r);*/
+/*      if (r<3.0) { fprintf(stdout,"d = %f p6 = %f p7 = %f\n",r,arg7/r,arg8); }*/
+      return (arg1/r+arg2+arg3*r+arg4*r*r+arg5*r*r*r)*exp(-arg6*r)+(arg7/r+arg8)*exp(-arg9*r)-f6*arg10*rri6-f8*arg11*rri8-arg13;
+    case MEDFF_SMOOTHED3:
+      // {(p_0/r+p_1+p_2*r+p_3*r^2+p_4*r^3)*exp(-p_5*r)+(p_6/r+p_7)*exp(-p_8*r)-f_6*p_9/r^6-f_8*p_10/r^8}*S(r)
+      // ======================================================================================
+      // p_0/k_B [K A]
+      // p_1/k_B [K]
+      // p_2/k_B [K A^-1]
+      // p_3/k_B [K A^-2]
+      // p_4/k_B [K A^-3]
+      // p_5     [A^-1]
+      // p_6/k_B [K A]
+      // p_7/k_B [K]
+      // p_8     [A^-1]
+      // p_9/k_B [K A^6]
+      // p_10/k_B[K A^8]
+      // p_11    [A^-1]
+      arg1=PotentialParms[typeA][typeB][0];
+      arg2=PotentialParms[typeA][typeB][1];
+      arg3=PotentialParms[typeA][typeB][2];
+      arg4=PotentialParms[typeA][typeB][3];
+      arg5=PotentialParms[typeA][typeB][4];
+      arg6=PotentialParms[typeA][typeB][5];
+      arg7=PotentialParms[typeA][typeB][6];
+      arg8=PotentialParms[typeA][typeB][7];
+      arg9=PotentialParms[typeA][typeB][8];
+      arg10=PotentialParms[typeA][typeB][9];
+      arg11=PotentialParms[typeA][typeB][10];
+      arg12=PotentialParms[typeA][typeB][11];
+      r=sqrt(rr);
+      ComputeDampingCoefficients(r,arg12,&f6,&f8,&f10);
+      rri2=1.0/rr;
+      rri4=rri2*rri2;
+      rri6=rri4*rri2;
+      rri8=rri6*rri2;
+      if(rr>CutOffVDWSwitchSquared)
+      {
+        r=sqrt(rr);
+        SwitchingValue=SwitchingVDWFactors3[3]*(rr*r)+SwitchingVDWFactors3[2]*rr+SwitchingVDWFactors3[1]*r+SwitchingVDWFactors3[0];
+        return SwitchingValue*((arg1/r+arg2+arg3*r+arg4*r*r+arg5*r*r*r)*exp(-arg6*r)+(arg7/r+arg8)*exp(-arg9*r)-f6*arg10*rri6-f8*arg11*rri8);
+      }
+      return (arg1/r+arg2+arg3*r+arg4*r*r+arg5*r*r*r)*exp(-arg6*r)+(arg7/r+arg8)*exp(-arg9*r)-f6*arg10*rri6-f8*arg11*rri8;
+    case MEDFF_SMOOTHED5:
+      // {(p_0/r+p_1+p_2*r+p_3*r^2+p_4*r^3)*exp(-p_5*r)+(p_6/r+p_7)*exp(-p_8*r)-f_6*p_9/r^6-f_8*p_10/r^8}*S(r)
+      // ======================================================================================
+      // p_0/k_B [K A]
+      // p_1/k_B [K]
+      // p_2/k_B [K A^-1]
+      // p_3/k_B [K A^-2]
+      // p_4/k_B [K A^-3]
+      // p_5     [A^-1]
+      // p_6/k_B [K A]
+      // p_7/k_B [K]
+      // p_8     [A^-1]
+      // p_9/k_B [K A^6]
+      // p_10/k_B[K A^8]
+      // p_11    [A^-1]
+      arg1=PotentialParms[typeA][typeB][0];
+      arg2=PotentialParms[typeA][typeB][1];
+      arg3=PotentialParms[typeA][typeB][2];
+      arg4=PotentialParms[typeA][typeB][3];
+      arg5=PotentialParms[typeA][typeB][4];
+      arg6=PotentialParms[typeA][typeB][5];
+      arg7=PotentialParms[typeA][typeB][6];
+      arg8=PotentialParms[typeA][typeB][7];
+      arg9=PotentialParms[typeA][typeB][8];
+      arg10=PotentialParms[typeA][typeB][9];
+      arg11=PotentialParms[typeA][typeB][10];
+      arg12=PotentialParms[typeA][typeB][11];
+      r=sqrt(rr);
+      ComputeDampingCoefficients(r,arg12,&f6,&f8,&f10);
+      rri2=1.0/rr;
+      rri4=rri2*rri2;
+      rri6=rri4*rri2;
+      rri8=rri6*rri2;
+      if(rr>CutOffVDWSwitchSquared)
+      {
+        r=sqrt(rr);
+        SwitchingValue=SwitchingVDWFactors5[5]*(rr*rr*r)+SwitchingVDWFactors5[4]*(rr*rr)+SwitchingVDWFactors5[3]*(rr*r)+
+                        SwitchingVDWFactors5[2]*rr+SwitchingVDWFactors5[1]*r+SwitchingVDWFactors5[0];
+        return SwitchingValue*((arg1/r+arg2+arg3*r+arg4*r*r+arg5*r*r*r)*exp(-arg6*r)+(arg7/r+arg8)*exp(-arg9*r)-f6*arg10*rri6-f8*arg11*rri8);
+      }
+      return (arg1/r+arg2+arg3*r+arg4*r*r+arg5*r*r*r)*exp(-arg6*r)+(arg7/r+arg8)*exp(-arg9*r)-f6*arg10*rri6-f8*arg11*rri8;
     case HYDRATED_ION_WATER:
       // p_0*exp(-p_1*r)-p_2/r^4-p_3/r^6-p_4/r^12
       // ======================================================================================
@@ -7011,7 +7385,7 @@ REAL PotentialValue(int typeA,int typeB,REAL rr,REAL scaling)
 void PotentialGradient(int typeA,int typeB,REAL rr,REAL *energy,REAL *force_factor,REAL scaling)
 {
   REAL fcVal,r,U,rri3,rri3_2;
-  REAL arg1,arg2,arg3,arg4,arg5,arg6,arg7;
+  REAL arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11,arg12,arg13;
   REAL ri6,ri9;
   REAL exp1,exp2,exp_term,P;
   REAL f6,f8,f10,f6d,f8d,f10d;
@@ -8268,6 +8642,157 @@ void PotentialGradient(int typeA,int typeB,REAL rr,REAL *energy,REAL *force_fact
       U=arg1*exp(-arg2*r)-f6*arg3*rri6-f8*arg4*rri8-f10*arg5*rri10;
       fcVal=-((arg1*arg2*exp(-arg2*r)+f6d*arg3*rri6+f8d*arg4*rri8+f10d*arg5*rri10)/r
              -(f6*(6.0*arg3*rri8)+f8*(8.0*arg4*rri10)+f10*(10.0*arg5*rri12)));
+      if(rr>CutOffVDWSwitchSquared)
+      {
+        SwitchingValue=SwitchingVDWFactors5[5]*(rr*rr*r)+SwitchingVDWFactors5[4]*(rr*rr)+SwitchingVDWFactors5[3]*(rr*r)+
+                       SwitchingVDWFactors5[2]*rr+SwitchingVDWFactors5[1]*r+SwitchingVDWFactors5[0];
+        SwitchingValueDerivative=5.0*SwitchingVDWFactors5[5]*rr*rr+4.0*SwitchingVDWFactors5[4]*rr*r+3.0*SwitchingVDWFactors5[3]*rr+
+                                 2.0*SwitchingVDWFactors5[2]*r+SwitchingVDWFactors5[1];
+        fcVal=U*SwitchingValueDerivative/r+fcVal*SwitchingValue;
+        U*=SwitchingValue;
+      }
+      break;
+    case MEDFF:
+      // (p_0/r+p_1+p_2*r+p_3*r^2+p_4*r^3)*exp(-p_5*r)+(p_6/r+p_7)*exp(-p_8*r)-f_6*p_9/r^6-f_8*p_10/r^8
+      // ======================================================================================
+      // p_0/k_B [K A]
+      // p_1/k_B [K]
+      // p_2/k_B [K A^-1]
+      // p_3/k_B [K A^-2]
+      // p_4/k_B [K A^-3]
+      // p_5     [A^-1]
+      // p_6/k_B [K A]
+      // p_7/k_B [K]
+      // p_8     [A^-1]
+      // p_9/k_B [K A^6]
+      // p_10/k_B[K A^8]
+      // p_11    [A^-1]
+      // p_12/k_B[K]
+      arg1=PotentialParms[typeA][typeB][0];
+      arg2=PotentialParms[typeA][typeB][1];
+      arg3=PotentialParms[typeA][typeB][2];
+      arg4=PotentialParms[typeA][typeB][3];
+      arg5=PotentialParms[typeA][typeB][4];
+      arg6=PotentialParms[typeA][typeB][5];
+      arg7=PotentialParms[typeA][typeB][6];
+      arg8=PotentialParms[typeA][typeB][7];
+      arg9=PotentialParms[typeA][typeB][8];
+      arg10=PotentialParms[typeA][typeB][9];
+      arg11=PotentialParms[typeA][typeB][10];
+      arg12=PotentialParms[typeA][typeB][11];
+      arg13=PotentialParms[typeA][typeB][12];
+      r=sqrt(rr);
+      ComputeDampingCoefficients(r,arg12,&f6,&f8,&f10);
+      ComputeDampingCoefficientsDerivatives(r,arg12,&f6d,&f8d,&f10d);
+      rri2=1.0/rr;
+      rri4=rri2*rri2;
+      rri6=rri4*rri2;
+      rri8=rri6*rri2;
+      rri10=rri8*rri2;
+      U=(arg1/r+arg2+arg3*r+arg4*r*r+arg5*r*r*r)*exp(-arg6*r)+(arg7/r+arg8)*exp(-arg9*r)-f6*arg10*rri6-f8*arg11*rri8-arg13;
+      fcVal = -arg6*(arg1*rri2+arg2/r+arg3+arg4*r+arg5*r*r)*exp(-arg6*r)
+              +(-arg1*rri2/r+arg3/r+2.0*arg4+3.0*arg5*r)*exp(-arg6*r)
+              -arg9*(arg7*rri2+arg8/r)*exp(-arg9*r)
+              +(-arg7*rri2/r)*exp(-arg9*r)
+              -(f6d*arg10*rri6+f8d*arg11*rri8)/r
+              +6.0*f6*arg10*rri8+8.0*f8*arg11*rri10;
+      break;
+    case MEDFF_SMOOTHED3:
+      // (p_0/r+p_1+p_2*r+p_3*r^2+p_4*r^3)*exp(-p_5*r)+(p_6/r+p_7)*exp(-p_8*r)-f_6*p_9/r^6-f_8*p_10/r^8
+      // ======================================================================================
+      // p_0/k_B [K A]
+      // p_1/k_B [K]
+      // p_2/k_B [K A^-1]
+      // p_3/k_B [K A^-2]
+      // p_4/k_B [K A^-3]
+      // p_5     [A^-1]
+      // p_6/k_B [K A]
+      // p_7/k_B [K]
+      // p_8     [A^-1]
+      // p_9/k_B [K A^6]
+      // p_10/k_B[K A^8]
+      // p_11    [A^-1]
+      // p_12/k_B[K]
+      arg1=PotentialParms[typeA][typeB][0];
+      arg2=PotentialParms[typeA][typeB][1];
+      arg3=PotentialParms[typeA][typeB][2];
+      arg4=PotentialParms[typeA][typeB][3];
+      arg5=PotentialParms[typeA][typeB][4];
+      arg6=PotentialParms[typeA][typeB][5];
+      arg7=PotentialParms[typeA][typeB][6];
+      arg8=PotentialParms[typeA][typeB][7];
+      arg9=PotentialParms[typeA][typeB][8];
+      arg10=PotentialParms[typeA][typeB][9];
+      arg11=PotentialParms[typeA][typeB][10];
+      arg12=PotentialParms[typeA][typeB][11];
+      r=sqrt(rr);
+      ComputeDampingCoefficients(r,arg12,&f6,&f8,&f10);
+      ComputeDampingCoefficientsDerivatives(r,arg12,&f6d,&f8d,&f10d);
+      rri2=1.0/rr;
+      rri4=rri2*rri2;
+      rri6=rri4*rri2;
+      rri8=rri6*rri2;
+      rri10=rri8*rri2;
+      U=(arg1/r+arg2+arg3*r+arg4*r*r+arg5*r*r*r)*exp(-arg6*r)+(arg7/r+arg8)*exp(-arg9*r)-f6*arg10*rri6-f8*arg11*rri8;
+      fcVal = -arg6*(arg1*rri2+arg2/r+arg3+arg4*r+arg5*r*r)*exp(-arg6*r)
+              +(-arg1*rri2/r+arg3/r+2.0*arg4+3.0*arg5*r)*exp(-arg6*r)
+              -arg9*(arg7*rri2+arg8/r)*exp(-arg9*r)
+              +(-arg7*rri2/r)*exp(-arg9*r)
+              -(f6d*arg10*rri6+f8d*arg11*rri8)/r
+              +6.0*f6*arg10*rri8+8.0*f8*arg11*rri10;
+      if(rr>CutOffVDWSwitchSquared)
+      {
+        SwitchingValue=(SwitchingVDWFactors3[3]*(rr*r)+SwitchingVDWFactors3[2]*rr+
+                        SwitchingVDWFactors3[1]*r+SwitchingVDWFactors3[0]);
+        SwitchingValueDerivative=(3.0*SwitchingVDWFactors3[3]*rr+2.0*SwitchingVDWFactors3[2]*r+SwitchingVDWFactors3[1]);
+        fcVal=U*SwitchingValueDerivative/r+fcVal*SwitchingValue;
+        U*=SwitchingValue;
+      }
+      break;
+    case MEDFF_SMOOTHED5:
+      // (p_0/r+p_1+p_2*r+p_3*r^2+p_4*r^3)*exp(-p_5*r)+(p_6/r+p_7)*exp(-p_8*r)-f_6*p_9/r^6-f_8*p_10/r^8
+      // ======================================================================================
+      // p_0/k_B [K A]
+      // p_1/k_B [K]
+      // p_2/k_B [K A^-1]
+      // p_3/k_B [K A^-2]
+      // p_4/k_B [K A^-3]
+      // p_5     [A^-1]
+      // p_6/k_B [K A]
+      // p_7/k_B [K]
+      // p_8     [A^-1]
+      // p_9/k_B [K A^6]
+      // p_10/k_B[K A^8]
+      // p_11    [A^-1]
+      // p_12/k_B[K]
+      arg1=PotentialParms[typeA][typeB][0];
+      arg2=PotentialParms[typeA][typeB][1];
+      arg3=PotentialParms[typeA][typeB][2];
+      arg4=PotentialParms[typeA][typeB][3];
+      arg5=PotentialParms[typeA][typeB][4];
+      arg6=PotentialParms[typeA][typeB][5];
+      arg7=PotentialParms[typeA][typeB][6];
+      arg8=PotentialParms[typeA][typeB][7];
+      arg9=PotentialParms[typeA][typeB][8];
+      arg10=PotentialParms[typeA][typeB][9];
+      arg11=PotentialParms[typeA][typeB][10];
+      arg12=PotentialParms[typeA][typeB][11];
+      arg13=PotentialParms[typeA][typeB][12];
+      r=sqrt(rr);
+      ComputeDampingCoefficients(r,arg12,&f6,&f8,&f10);
+      ComputeDampingCoefficientsDerivatives(r,arg12,&f6d,&f8d,&f10d);
+      rri2=1.0/rr;
+      rri4=rri2*rri2;
+      rri6=rri4*rri2;
+      rri8=rri6*rri2;
+      rri10=rri8*rri2;
+      U=(arg1/r+arg2+arg3*r+arg4*r*r+arg5*r*r*r)*exp(-arg6*r)+(arg7/r+arg8)*exp(-arg9*r)-f6*arg10*rri6-f8*arg11*rri8-arg13;
+      fcVal = -arg6*(arg1*rri2+arg2/r+arg3+arg4*r+arg5*r*r)*exp(-arg6*r)
+              +(-arg1*rri2/r+arg3/r+2.0*arg4+3.0*arg5*r)*exp(-arg6*r)
+              -arg9*(arg7*rri2+arg8/r)*exp(-arg9*r)
+              +(-arg7*rri2/r)*exp(-arg9*r)
+              -(f6d*arg10*rri6+f8d*arg11*rri8)/r
+              +6.0*f6*arg10*rri8+8.0*f8*arg11*rri10;
       if(rr>CutOffVDWSwitchSquared)
       {
         SwitchingValue=SwitchingVDWFactors5[5]*(rr*rr*r)+SwitchingVDWFactors5[4]*(rr*rr)+SwitchingVDWFactors5[3]*(rr*r)+
@@ -10107,6 +10632,11 @@ void PotentialSecondDerivative(int typeA,int typeB,REAL rr,REAL *energy,REAL *fa
         U*=SwitchingValue;
       }
       break;
+    case MEDFF:
+    case MEDFF_SMOOTHED3:
+    case MEDFF_SMOOTHED5:
+      fprintf(stderr, "'PotentialSecondDerivative' not implemented for MEDFF ('potential.c')\n");
+      exit(0);
     case HYDRATED_ION_WATER:
      // p_0*exp(-p_1*r)-p_2/r^4-p_3/r^6-p_4/r^12
      // ======================================================================================
@@ -10847,6 +11377,12 @@ REAL PotentialCorrection(int typeA,int typeB,REAL r)
     case PELLENQ_NICHOLSON_SMOOTHED3:
     case PELLENQ_NICHOLSON_SMOOTHED5:
       return 0.0;
+    case MEDFF:
+      fprintf(stderr, "'PotentialCorrection' not implemented for MEDFF ('potential.c')\n");
+      exit(0);
+    case MEDFF_SMOOTHED3:
+    case MEDFF_SMOOTHED5:
+      return 0.0;
     case HYDRATED_ION_WATER:
       // p_0*exp(-p_1*r)-p_2/r^4-p_3/r^6-p_4/r^12
       // ======================================================================================
@@ -11178,6 +11714,12 @@ REAL PotentialCorrectionPressure(int typeA,int typeB,REAL r)
       return term1-exp(-arg2*r)*(term2+term3+term4);
     case PELLENQ_NICHOLSON_SMOOTHED3:
     case PELLENQ_NICHOLSON_SMOOTHED5:
+      return 0.0;
+    case MEDFF:
+      fprintf(stderr, "'PotentialCorrectionPressure' not implemented for MEDFF ('potential.c')\n");
+      exit(0);
+    case MEDFF_SMOOTHED3:
+    case MEDFF_SMOOTHED5:
       return 0.0;
     case HYDRATED_ION_WATER:
       // p_0*exp(-p_1*r)-p_2/r^4-p_3/r^6-p_4/r^12
