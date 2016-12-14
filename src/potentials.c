@@ -11049,9 +11049,14 @@ void PotentialSecondDerivative(int typeA,int typeB,REAL rr,REAL *energy,REAL *fa
 
 void PotentialThirdDerivative(int typeA,int typeB,REAL rr,REAL *energy,REAL *factor1,REAL *factor2,REAL *factor3)
 {
-  REAL fcVal1,fcVal2,fcVal3,U,rri3;
-  REAL arg1,arg2,arg3,arg4;
-  REAL r;
+  REAL fcVal1,fcVal2,fcVal3,r,U,rri3,rri3_2;
+  REAL arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11,arg12,arg13;
+  REAL ri6,ri9;
+  REAL exp1,exp2,exp_term,P;
+  REAL f6,f8,f10,f6d,f8d,f10d;
+  REAL rri2,rri4,rri5,rri6,rri8,rri10,rri12,rri14,rri16;
+  REAL term1,term2;
+  REAL SwitchingValue,SwitchingValueDerivative;
 
   switch(PotentialType[typeA][typeB])
   {
@@ -11101,6 +11106,163 @@ void PotentialThirdDerivative(int typeA,int typeB,REAL rr,REAL *energy,REAL *fac
       fcVal1=arg1*arg2*(exp(0.5*arg2*(1.0-r/arg3))-exp(arg2*(1.0-r/arg3)))/(arg3*r);
       fcVal2=arg1*arg2*exp(-arg2*r/arg3)*(exp(arg2*(0.5+0.5*r/arg3))*(-arg3-0.5*arg2*r)+exp(arg2)*(arg3+arg2*r))/(rr*r*SQR(arg3));
       fcVal3=(arg2*arg1*exp((arg2*(arg3 - r))/arg3)*((12*SQR(arg3))/exp((arg2*(arg3 - r))/(2*arg3)) - 12*SQR(arg3) - 4*SQR(arg2)*rr - 12*arg2*arg3*r + (SQR(arg2)*rr)/exp((arg2*(arg3 - r))/(2*arg3)) + (6*arg2*arg3*r)/exp((arg2*(arg3 - r))/(2*arg3))))/(4*CUBE(arg3)*SQR(rr)*r);
+      break;
+    case MEDFF:
+      // (p_0/r+p_1+p_2*r+p_3*r^2+p_4*r^3)*exp(-p_5*r)+(p_6/r+p_7)*exp(-p_8*r)-f_6*p_9/r^6-f_8*p_10/r^8
+      // ======================================================================================
+      // p_0/k_B [K A]
+      // p_1/k_B [K]
+      // p_2/k_B [K A^-1]
+      // p_3/k_B [K A^-2]
+      // p_4/k_B [K A^-3]
+      // p_5     [A^-1]
+      // p_6/k_B [K A]
+      // p_7/k_B [K]
+      // p_8     [A^-1]
+      // p_9/k_B [K A^6]
+      // p_10/k_B[K A^8]
+      // p_11    [A^-1]
+      // p_12/k_B[K]
+      arg1=PotentialParms[typeA][typeB][0];
+      arg2=PotentialParms[typeA][typeB][1];
+      arg3=PotentialParms[typeA][typeB][2];
+      arg4=PotentialParms[typeA][typeB][3];
+      arg5=PotentialParms[typeA][typeB][4];
+      arg6=PotentialParms[typeA][typeB][5];
+      arg7=PotentialParms[typeA][typeB][6];
+      arg8=PotentialParms[typeA][typeB][7];
+      arg9=PotentialParms[typeA][typeB][8];
+      arg10=PotentialParms[typeA][typeB][9];
+      arg11=PotentialParms[typeA][typeB][10];
+      arg12=PotentialParms[typeA][typeB][11];
+      arg13=PotentialParms[typeA][typeB][12];
+      r=sqrt(rr);
+      ComputeDampingCoefficients(r,arg12,&f6,&f8,&f10);
+      ComputeDampingCoefficientsDerivatives(r,arg12,&f6d,&f8d,&f10d);
+      rri2=1.0/rr;
+      rri4=rri2*rri2;
+      rri6=rri4*rri2;
+      rri8=rri6*rri2;
+      rri10=rri8*rri2;
+      U=(arg1/r+arg2+arg3*r+arg4*r*r+arg5*r*r*r)*exp(-arg6*r)+(arg7/r+arg8)*exp(-arg9*r)-f6*arg10*rri6-f8*arg11*rri8-arg13;
+      fcVal1 = -arg6*(arg1*rri2+arg2/r+arg3+arg4*r+arg5*r*r)*exp(-arg6*r)
+              +(-arg1*rri2/r+arg3/r+2.0*arg4+3.0*arg5*r)*exp(-arg6*r)
+              -arg9*(arg7*rri2+arg8/r)*exp(-arg9*r)
+              +(-arg7*rri2/r)*exp(-arg9*r)
+              -(f6d*arg10*rri6+f8d*arg11*rri8)/r
+              +6.0*f6*arg10*rri8+8.0*f8*arg11*rri10;
+      fcVal2 = 0.0;
+      fcVal3 = 0.0;
+      break;
+    case MEDFF_SMOOTHED3:
+      // (p_0/r+p_1+p_2*r+p_3*r^2+p_4*r^3)*exp(-p_5*r)+(p_6/r+p_7)*exp(-p_8*r)-f_6*p_9/r^6-f_8*p_10/r^8
+      // ======================================================================================
+      // p_0/k_B [K A]
+      // p_1/k_B [K]
+      // p_2/k_B [K A^-1]
+      // p_3/k_B [K A^-2]
+      // p_4/k_B [K A^-3]
+      // p_5     [A^-1]
+      // p_6/k_B [K A]
+      // p_7/k_B [K]
+      // p_8     [A^-1]
+      // p_9/k_B [K A^6]
+      // p_10/k_B[K A^8]
+      // p_11    [A^-1]
+      // p_12/k_B[K]
+      arg1=PotentialParms[typeA][typeB][0];
+      arg2=PotentialParms[typeA][typeB][1];
+      arg3=PotentialParms[typeA][typeB][2];
+      arg4=PotentialParms[typeA][typeB][3];
+      arg5=PotentialParms[typeA][typeB][4];
+      arg6=PotentialParms[typeA][typeB][5];
+      arg7=PotentialParms[typeA][typeB][6];
+      arg8=PotentialParms[typeA][typeB][7];
+      arg9=PotentialParms[typeA][typeB][8];
+      arg10=PotentialParms[typeA][typeB][9];
+      arg11=PotentialParms[typeA][typeB][10];
+      arg12=PotentialParms[typeA][typeB][11];
+      r=sqrt(rr);
+      ComputeDampingCoefficients(r,arg12,&f6,&f8,&f10);
+      ComputeDampingCoefficientsDerivatives(r,arg12,&f6d,&f8d,&f10d);
+      rri2=1.0/rr;
+      rri4=rri2*rri2;
+      rri6=rri4*rri2;
+      rri8=rri6*rri2;
+      rri10=rri8*rri2;
+      U=(arg1/r+arg2+arg3*r+arg4*r*r+arg5*r*r*r)*exp(-arg6*r)+(arg7/r+arg8)*exp(-arg9*r)-f6*arg10*rri6-f8*arg11*rri8;
+      fcVal1 = -arg6*(arg1*rri2+arg2/r+arg3+arg4*r+arg5*r*r)*exp(-arg6*r)
+              +(-arg1*rri2/r+arg3/r+2.0*arg4+3.0*arg5*r)*exp(-arg6*r)
+              -arg9*(arg7*rri2+arg8/r)*exp(-arg9*r)
+              +(-arg7*rri2/r)*exp(-arg9*r)
+              -(f6d*arg10*rri6+f8d*arg11*rri8)/r
+              +6.0*f6*arg10*rri8+8.0*f8*arg11*rri10;
+      if(rr>CutOffVDWSwitchSquared)
+      {
+        SwitchingValue=(SwitchingVDWFactors3[3]*(rr*r)+SwitchingVDWFactors3[2]*rr+
+                        SwitchingVDWFactors3[1]*r+SwitchingVDWFactors3[0]);
+        SwitchingValueDerivative=(3.0*SwitchingVDWFactors3[3]*rr+2.0*SwitchingVDWFactors3[2]*r+SwitchingVDWFactors3[1]);
+        fcVal1=U*SwitchingValueDerivative/r+fcVal1*SwitchingValue;
+        U*=SwitchingValue;
+      }
+      fcVal2 = 0.0;
+      fcVal3 = 0.0;
+      break;
+    case MEDFF_SMOOTHED5:
+      // (p_0/r+p_1+p_2*r+p_3*r^2+p_4*r^3)*exp(-p_5*r)+(p_6/r+p_7)*exp(-p_8*r)-f_6*p_9/r^6-f_8*p_10/r^8
+      // ======================================================================================
+      // p_0/k_B [K A]
+      // p_1/k_B [K]
+      // p_2/k_B [K A^-1]
+      // p_3/k_B [K A^-2]
+      // p_4/k_B [K A^-3]
+      // p_5     [A^-1]
+      // p_6/k_B [K A]
+      // p_7/k_B [K]
+      // p_8     [A^-1]
+      // p_9/k_B [K A^6]
+      // p_10/k_B[K A^8]
+      // p_11    [A^-1]
+      // p_12/k_B[K]
+      arg1=PotentialParms[typeA][typeB][0];
+      arg2=PotentialParms[typeA][typeB][1];
+      arg3=PotentialParms[typeA][typeB][2];
+      arg4=PotentialParms[typeA][typeB][3];
+      arg5=PotentialParms[typeA][typeB][4];
+      arg6=PotentialParms[typeA][typeB][5];
+      arg7=PotentialParms[typeA][typeB][6];
+      arg8=PotentialParms[typeA][typeB][7];
+      arg9=PotentialParms[typeA][typeB][8];
+      arg10=PotentialParms[typeA][typeB][9];
+      arg11=PotentialParms[typeA][typeB][10];
+      arg12=PotentialParms[typeA][typeB][11];
+      arg13=PotentialParms[typeA][typeB][12];
+      r=sqrt(rr);
+      ComputeDampingCoefficients(r,arg12,&f6,&f8,&f10);
+      ComputeDampingCoefficientsDerivatives(r,arg12,&f6d,&f8d,&f10d);
+      rri2=1.0/rr;
+      rri4=rri2*rri2;
+      rri6=rri4*rri2;
+      rri8=rri6*rri2;
+      rri10=rri8*rri2;
+      U=(arg1/r+arg2+arg3*r+arg4*r*r+arg5*r*r*r)*exp(-arg6*r)+(arg7/r+arg8)*exp(-arg9*r)-f6*arg10*rri6-f8*arg11*rri8-arg13;
+      fcVal1 = -arg6*(arg1*rri2+arg2/r+arg3+arg4*r+arg5*r*r)*exp(-arg6*r)
+              +(-arg1*rri2/r+arg3/r+2.0*arg4+3.0*arg5*r)*exp(-arg6*r)
+              -arg9*(arg7*rri2+arg8/r)*exp(-arg9*r)
+              +(-arg7*rri2/r)*exp(-arg9*r)
+              -(f6d*arg10*rri6+f8d*arg11*rri8)/r
+              +6.0*f6*arg10*rri8+8.0*f8*arg11*rri10;
+      if(rr>CutOffVDWSwitchSquared)
+      {
+        SwitchingValue=SwitchingVDWFactors5[5]*(rr*rr*r)+SwitchingVDWFactors5[4]*(rr*rr)+SwitchingVDWFactors5[3]*(rr*r)+
+                       SwitchingVDWFactors5[2]*rr+SwitchingVDWFactors5[1]*r+SwitchingVDWFactors5[0];
+        SwitchingValueDerivative=5.0*SwitchingVDWFactors5[5]*rr*rr+4.0*SwitchingVDWFactors5[4]*rr*r+3.0*SwitchingVDWFactors5[3]*rr+
+                                 2.0*SwitchingVDWFactors5[2]*r+SwitchingVDWFactors5[1];
+        fcVal1=U*SwitchingValueDerivative/r+fcVal1*SwitchingValue;
+        U*=SwitchingValue;
+      }
+      fcVal2 = 0.0;
+      fcVal3 = 0.0;
       break;
     default:
       U=0.0;
