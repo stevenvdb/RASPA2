@@ -53,13 +53,14 @@
 #include "numerical.h"
 
 
-void CalculateDerivativesAtPositionVDW(VECTOR pos,int typeA,REAL *value,VECTOR *first_derivative,
+REAL CalculateDerivativesAtPositionVDW(VECTOR pos,int typeA,REAL *value,VECTOR *first_derivative,
                                        REAL_MATRIX3x3 *second_derivative,REAL *third_derivative)
 {
   int i,f;
   int typeB;
   VECTOR dr;
-  REAL rr,F,DF,DDF,DDDF;
+  REAL r,rr,F,DF,DDF,DDDF;
+  REAL smallest_r;
 
   *value=0;
   first_derivative->x=0.0;
@@ -70,6 +71,7 @@ void CalculateDerivativesAtPositionVDW(VECTOR pos,int typeA,REAL *value,VECTOR *
   second_derivative->az=second_derivative->bz=second_derivative->cz=0.0;
   *third_derivative=0.0;
 
+  smallest_r=DBL_MAX;
   for(f=0;f<Framework[CurrentSystem].NumberOfFrameworks;f++)
   {
     for(i=0;i<Framework[CurrentSystem].NumberOfAtoms[f];i++)
@@ -82,6 +84,9 @@ void CalculateDerivativesAtPositionVDW(VECTOR pos,int typeA,REAL *value,VECTOR *
       rr=SQR(dr.x)+SQR(dr.y)+SQR(dr.z);
       if(rr<CutOffVDWSquared)
       {
+        r=sqrt(rr);
+        if(r<smallest_r) smallest_r=r;
+
         PotentialThirdDerivative(typeA,typeB,rr,&F,&DF,&DDF,&DDDF);
 
         *value+=F;
@@ -99,6 +104,7 @@ void CalculateDerivativesAtPositionVDW(VECTOR pos,int typeA,REAL *value,VECTOR *
       }
     }
   }
+  return smallest_r;
 }
 
 REAL CalculateDerivativesAtPositionReal(VECTOR pos,int typeA,REAL *value,VECTOR *first_derivative,

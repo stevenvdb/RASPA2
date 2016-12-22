@@ -297,6 +297,7 @@ void MakeASCIGrid(void)
   REAL value,third_derivative;
   VECTOR first_derivative;
   REAL_MATRIX3x3 second_derivative;
+  REAL smallest_r;
   char buffer[1024];
   FILE *FilePtr;
 
@@ -401,12 +402,12 @@ void MakeASCIGrid(void)
 
               // apply boundary condition
               //value=CalculateFrameworkVDWEnergyAtPosition(pos,typeA);
-              CalculateDerivativesAtPositionVDW(pos,typeA,&value,&first_derivative,&second_derivative,&third_derivative);
+              smallest_r=CalculateDerivativesAtPositionVDW(pos,typeA,&value,&first_derivative,&second_derivative,&third_derivative);
               break;
           }
 
           // cap the value
-          if(value<EnergyOverlapCriteria)
+          if(value<EnergyOverlapCriteria&&smallest_r>1.0)
             fprintf(FilePtr,"%g %g %g %g %g %g %g\n",pos.x,pos.y,pos.z,value*ENERGY_TO_KELVIN,
                     -first_derivative.x*ENERGY_TO_KELVIN,-first_derivative.y*ENERGY_TO_KELVIN,-first_derivative.z*ENERGY_TO_KELVIN);
           else
@@ -538,12 +539,12 @@ void MakeGrid(void)
               pos.z=k*SizeGrid.z/NumberOfVDWGridPoints.z+ShiftGrid.z;
 
               // apply boundary condition
-              CalculateDerivativesAtPositionVDW(pos,typeA,&value,&first_derivative,&second_derivative,&third_derivative);
+              smallest_r=CalculateDerivativesAtPositionVDW(pos,typeA,&value,&first_derivative,&second_derivative,&third_derivative);
               break;
           }
 
           // cap the value
-          if(value>EnergyOverlapCriteria) 
+          if(value>EnergyOverlapCriteria||smallest_r<1.0)
           {
             value=2.0*EnergyOverlapCriteria;
             if(first_derivative.x>EnergyOverlapCriteria) first_derivative.x=EnergyOverlapCriteria;
