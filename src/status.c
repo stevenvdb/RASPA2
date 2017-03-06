@@ -2003,7 +2003,7 @@ REAL PrintBendTorsionEnergyStatus(int nr,char *string,int BendTorsionType,REAL *
 void PrintVDWEnergyStatus(int nr,char *string,int typeA,int typeB,REAL r,REAL energy)
 {
   REAL arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11,arg12,arg13;
-  REAL f6,f8,f10;
+  REAL f6,f8,f10,f12;
 
   switch(PotentialType[typeA][typeB])
   {
@@ -2755,7 +2755,7 @@ void PrintVDWEnergyStatus(int nr,char *string,int typeA,int typeB,REAL r,REAL en
       arg4=PotentialParms[typeA][typeB][3];
       arg5=PotentialParms[typeA][typeB][4];
       arg6=PotentialParms[typeA][typeB][5];
-      ComputeDampingCoefficients(r,arg2,&f6,&f8,&f10);
+      ComputeDampingCoefficients(r,arg2,&f6,&f8,&f10,&f12);
       fprintf(OutputFilePtr[CurrentSystem],"%4d PELLENQ_NICHOLSON %s, p_0/k_B=%8.5f [K], p_1=%8.5f [A^-1], p_2/k_B=%8.5f [K A^6], p_3/k_B=%8.5f [K A^8], p_4/k_B=%8.5f [K A^10], "
                                            "f_6/k_B=%8.5f [K], f_8/k_B=%8.5f [K], f_10/k_B=%8.5f [K], shift/k_B=%8.5f [K], Distance %8.5f [A], Energy: %10.5f [K] %8.5f [kJ/mol] %8.5f [kcal/mol]\n",
           nr++,
@@ -2787,7 +2787,7 @@ void PrintVDWEnergyStatus(int nr,char *string,int typeA,int typeB,REAL r,REAL en
       arg3=PotentialParms[typeA][typeB][2];
       arg4=PotentialParms[typeA][typeB][3];
       arg5=PotentialParms[typeA][typeB][4];
-      ComputeDampingCoefficients(r,arg2,&f6,&f8,&f10);
+      ComputeDampingCoefficients(r,arg2,&f6,&f8,&f10,&f12);
       fprintf(OutputFilePtr[CurrentSystem],"%4d PELLENQ_NICHOLSON_SMOOTHED3 %s, p_0/k_B=%8.5f [K], p_1=%8.5f [A^-1], p_2/k_B=%8.5f [K A^6], p_3/k_B=%8.5f [K A^8], p_4/k_B=%8.5f [K A^10], "
                                            "f_6/k_B=%8.5f [K], f_8/k_B=%8.5f [K], f_10/k_B=%8.5f [K], Distance %8.5f [A], Energy: %10.5f [K] %8.5f [kJ/mol] %8.5f [kcal/mol]\n",
           nr++,
@@ -2818,7 +2818,7 @@ void PrintVDWEnergyStatus(int nr,char *string,int typeA,int typeB,REAL r,REAL en
       arg3=PotentialParms[typeA][typeB][2];
       arg4=PotentialParms[typeA][typeB][3];
       arg5=PotentialParms[typeA][typeB][4];
-      ComputeDampingCoefficients(r,arg2,&f6,&f8,&f10);
+      ComputeDampingCoefficients(r,arg2,&f6,&f8,&f10,&f12);
       fprintf(OutputFilePtr[CurrentSystem],"%4d PELLENQ_NICHOLSON_SMOOTHED5 %s, p_0/k_B=%8.5f [K], p_1=%8.5f [A^-1], p_2/k_B=%8.5f [K A^6], p_3/k_B=%8.5f [K A^8], p_4/k_B=%8.5f [K A^10], "
                                            "f_6/k_B=%8.5f [K], f_8/k_B=%8.5f [K], f_10/k_B=%8.5f [K], Distance %8.5f [A], Energy: %10.5f [K] %8.5f [kJ/mol] %8.5f [kcal/mol]\n",
           nr++,
@@ -2865,7 +2865,7 @@ void PrintVDWEnergyStatus(int nr,char *string,int typeA,int typeB,REAL r,REAL en
       arg11=PotentialParms[typeA][typeB][10];
       arg12=PotentialParms[typeA][typeB][11];
       arg13=PotentialParms[typeA][typeB][12];
-      ComputeDampingCoefficients(r,arg12,&f6,&f8,&f10);
+      ComputeDampingCoefficients(r,arg12,&f6,&f8,&f10,&f12);
       fprintf(OutputFilePtr[CurrentSystem],"%4d MEDFF %s, p_0/k_B: %8.5lf [K A], p_1/k_B: %8.5lf [K], p_2/k_B: %8.5lf [K A^-1], "
                             "p_3/k_B: %8.5lf [K A^-2], p_4/k_B: %8.5lf [K A^-3], p_5: %8.5lf [A^-1], "
                             "p_6/k_B: %8.5lf [K A], p_7/k_B: %8.5lf [K], p_8: %8.5lf [A^-1], p_9/k_B: %8.5lf [K A^6], "

@@ -291,7 +291,7 @@ void ComputeDummyInteractions(void);
 REAL SwitchingFunctionBend(REAL theta);
 REAL SwitchingFunctionBendDerivative(REAL theta);
 
-void ComputeDampingCoefficients(REAL r, REAL b,REAL *f6,REAL *f8,REAL *f10);
+void ComputeDampingCoefficients(REAL r, REAL b,REAL *f6,REAL *f8,REAL *f10,REAL *f12);
 void ComputeSwitchingFactors(void);
 
 REAL PotentialValueCoulombic(REAL chargeA,REAL chargeB,REAL r);
