@@ -8630,7 +8630,7 @@ void PotentialGradient(int typeA,int typeB,REAL rr,REAL *energy,REAL *force_fact
       arg6=PotentialParms[typeA][typeB][5];
       r=sqrt(rr);
       ComputeDampingCoefficients(r,arg2,&f6,&f8,&f10,&f12);
-      ComputeDampingCoefficientsDerivatives(r,arg2,&f6d,&f8d,&f10d,&f12);
+      ComputeDampingCoefficientsDerivatives(r,arg2,&f6d,&f8d,&f10d,&f12d);
       rri2=1.0/rr;
       rri4=rri2*rri2;
       rri6=rri4*rri2;
@@ -8667,7 +8667,7 @@ void PotentialGradient(int typeA,int typeB,REAL rr,REAL *energy,REAL *force_fact
       arg6=PotentialParms[typeA][typeB][5];
       r=sqrt(rr);
       ComputeDampingCoefficients(r,arg2,&f6,&f8,&f10,&f12);
-      ComputeDampingCoefficientsDerivatives(r,arg2,&f6d,&f8d,&f10d,&f12);
+      ComputeDampingCoefficientsDerivatives(r,arg2,&f6d,&f8d,&f10d,&f12d);
       rri2=1.0/rr;
       rri4=rri2*rri2;
       rri6=rri4*rri2;
@@ -8719,7 +8719,7 @@ void PotentialGradient(int typeA,int typeB,REAL rr,REAL *energy,REAL *force_fact
       arg13=PotentialParms[typeA][typeB][12];
       r=sqrt(rr);
       ComputeDampingCoefficients(r,arg12,&f6,&f8,&f10,&f12);
-      ComputeDampingCoefficientsDerivatives(r,arg12,&f6d,&f8d,&f10d,&f12);
+      ComputeDampingCoefficientsDerivatives(r,arg12,&f6d,&f8d,&f10d,&f12d);
       rri2=1.0/rr;
       rri4=rri2*rri2;
       rri6=rri4*rri2;
@@ -11201,7 +11201,7 @@ void PotentialThirdDerivative(int typeA,int typeB,REAL rr,REAL *energy,REAL *fac
       arg6=PotentialParms[typeA][typeB][5];
       r=sqrt(rr);
       ComputeDampingCoefficients(r,arg2,&f6,&f8,&f10,&f12);
-      ComputeDampingCoefficientsDerivatives(r,arg2,&f6d,&f8d,&f10d,&f12);
+      ComputeDampingCoefficientsDerivatives(r,arg2,&f6d,&f8d,&f10d,&f12d);
       rri2=1.0/rr;
       rri4=rri2*rri2;
       rri6=rri4*rri2;
@@ -11240,7 +11240,7 @@ void PotentialThirdDerivative(int typeA,int typeB,REAL rr,REAL *energy,REAL *fac
       arg6=PotentialParms[typeA][typeB][5];
       r=sqrt(rr);
       ComputeDampingCoefficients(r,arg2,&f6,&f8,&f10,&f12);
-      ComputeDampingCoefficientsDerivatives(r,arg2,&f6d,&f8d,&f10d,&f12);
+      ComputeDampingCoefficientsDerivatives(r,arg2,&f6d,&f8d,&f10d,&f12d);
       rri2=1.0/rr;
       rri4=rri2*rri2;
       rri6=rri4*rri2;
