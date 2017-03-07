@@ -6921,7 +6921,7 @@ REAL PotentialValue(int typeA,int typeB,REAL rr,REAL scaling)
       arg4=PotentialParms[typeA][typeB][3];
       arg5=PotentialParms[typeA][typeB][4];
       arg6=PotentialParms[typeA][typeB][5];
-      arg7=PotentialParms[typeA][typeB][5];
+      arg7=PotentialParms[typeA][typeB][6];
       r=sqrt(rr);
       ComputeDampingCoefficients(r,arg2,&f6,&f8,&f10,&f12);
       rri2=1.0/rr;
