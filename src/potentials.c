@@ -11179,7 +11179,7 @@ void PotentialThirdDerivative(int typeA,int typeB,REAL rr,REAL *energy,REAL *fac
       else {
       r=sqrt(rr);
       ComputeDampingCoefficients(r,arg2,&f6,&f8,&f10,&f12);
-      ComputeDampingCoefficientsDerivatives(r,arg2,&f6d,&f8d,&f10d,&f12d);
+/*      ComputeDampingCoefficientsDerivatives(r,arg2,&f6d,&f8d,&f10d,&f12d);*/
       rri2=1.0/rr;
       rri4=rri2*rri2;
       rri6=rri4*rri2;
@@ -11188,8 +11188,9 @@ void PotentialThirdDerivative(int typeA,int typeB,REAL rr,REAL *energy,REAL *fac
       rri12=rri10*rri2;
       rri14=rri12*rri2;
       U=arg1*exp(-arg2*r)-f6*arg3*rri6-f8*arg4*rri8-f10*arg5*rri10-f12*arg6*rri12-arg7;
-      fcVal1=-((arg1*arg2*exp(-arg2*r)+f6d*arg3*rri6+f8d*arg4*rri8+f10d*arg5*rri10+f12d*arg6*rri12)/r
-             -(f6*(6.0*arg3*rri8)+f8*(8.0*arg4*rri10)+f10*(10.0*arg5*rri12)+f12*(12.0*arg6*rri14)));
+/*      fcVal1=-((arg1*arg2*exp(-arg2*r)+f6d*arg3*rri6+f8d*arg4*rri8+f10d*arg5*rri10+f12d*arg6*rri12)/r*/
+/*             -(f6*(6.0*arg3*rri8)+f8*(8.0*arg4*rri10)+f10*(10.0*arg5*rri12)+f12*(12.0*arg6*rri14)));*/
+      fcVal1 = 0.0;
       fcVal2 = 0.0;
       fcVal3 = 0.0;
       }
