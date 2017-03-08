@@ -6922,6 +6922,7 @@ REAL PotentialValue(int typeA,int typeB,REAL rr,REAL scaling)
       arg5=PotentialParms[typeA][typeB][4];
       arg6=PotentialParms[typeA][typeB][5];
       arg7=PotentialParms[typeA][typeB][6];
+      if (rr<OverlapDistanceSquared) { return 2.0*EnergyOverlapCriteria; }
       r=sqrt(rr);
       ComputeDampingCoefficients(r,arg2,&f6,&f8,&f10,&f12);
       rri2=1.0/rr;
@@ -8599,6 +8600,8 @@ void PotentialGradient(int typeA,int typeB,REAL rr,REAL *energy,REAL *force_fact
       arg5=PotentialParms[typeA][typeB][4];
       arg6=PotentialParms[typeA][typeB][5];
       arg7=PotentialParms[typeA][typeB][6];
+      if (rr<OverlapDistanceSquared) { U = 2.0*EnergyOverlapCriteria; }
+      else {
       r=sqrt(rr);
       ComputeDampingCoefficients(r,arg2,&f6,&f8,&f10,&f12);
       ComputeDampingCoefficientsDerivatives(r,arg2,&f6d,&f8d,&f10d,&f12d);
@@ -8612,6 +8615,7 @@ void PotentialGradient(int typeA,int typeB,REAL rr,REAL *energy,REAL *force_fact
       U=arg1*exp(-arg2*r)-f6*arg3*rri6-f8*arg4*rri8-f10*arg5*rri10-f12*arg6*rri12-arg7;
       fcVal=-((arg1*arg2*exp(-arg2*r)+f6d*arg3*rri6+f8d*arg4*rri8+f10d*arg5*rri10+f12d*arg6*rri12)/r
              -(f6*(6.0*arg3*rri8)+f8*(8.0*arg4*rri10)+f10*(10.0*arg5*rri12)+f12*(12.0*arg6*rri14)));
+      }
       break;
     case PELLENQ_NICHOLSON_SMOOTHED3:
       // {p_0*exp(-p_1*r)-f_6*p_2/r^6-f_8*p_3/r^8-f_10*p_4/r^10-f_12*p_5/r^12}*S(r)
@@ -10559,6 +10563,8 @@ void PotentialSecondDerivative(int typeA,int typeB,REAL rr,REAL *energy,REAL *fa
       arg5=PotentialParms[typeA][typeB][4];
       arg6=PotentialParms[typeA][typeB][5];
       arg7=PotentialParms[typeA][typeB][6];
+      if (rr<OverlapDistanceSquared) { U=EnergyOverlapCriteria; }
+      else {
       r=sqrt(rr);
       ComputeDampingCoefficients(r,arg2,&f6,&f8,&f10,&f12);
       ComputeDampingCoefficientsDerivatives(r,arg2,&f6d,&f8d,&f10d,&f12d);
@@ -10570,7 +10576,7 @@ void PotentialSecondDerivative(int typeA,int typeB,REAL rr,REAL *energy,REAL *fa
       rri10=rri8*rri2;
       rri12=rri10*rri2;
       rri14=rri12*rri2;
-      rri16=rri12*rri2;
+      rri16=rri14*rri2;
       U=arg1*exp(-arg2*r)-f6*arg3*rri6-f8*arg4*rri8-f10*arg5*rri10-f12*arg6*rri12-arg7;
       fcVal1=f6*(6.0*arg3*rri8)+f8*(8.0*arg4*rri10)+f10*(10.0*arg5*rri12)+f12*(12.0*arg6*rri14)-arg1*arg2*exp(-arg2*r)/r
              -(f6d*arg3*rri6+f8d*arg4*rri8+f10d*arg5*rri10+f12d*arg6*rri12)/r;
@@ -10578,6 +10584,7 @@ void PotentialSecondDerivative(int typeA,int typeB,REAL rr,REAL *energy,REAL *fa
              +arg1*SQR(arg2)*exp(-arg2*r)/rr-42.0*arg3*f6*rri10-72.0*arg4*f8*rri12-110.0*arg5*f10*rri14-156.0*arg6*f12*rri16
              -arg3*f6d2*rri8-arg4*f8d2*rri10-arg5*f10d2*rri12-arg6*f12d2*rri14
              +12.0*arg3*f6d*rri8/r+16.0*arg4*f8d*rri10/r+20.0*arg5*f10d*rri12/r+24.0*arg6*f12d*rri14;
+      }
       break;
     case PELLENQ_NICHOLSON_SMOOTHED3:
       // {p_0*exp(-p_1*r)-f_6*p_2/r^6-f_8*p_3/r^8-f_10*p_4/r^10-f_12*p_5/r^12}*S(r)
@@ -11168,6 +11175,8 @@ void PotentialThirdDerivative(int typeA,int typeB,REAL rr,REAL *energy,REAL *fac
       arg5=PotentialParms[typeA][typeB][4];
       arg6=PotentialParms[typeA][typeB][5];
       arg7=PotentialParms[typeA][typeB][6];
+      if (rr<OverlapDistanceSquared) {U=EnergyOverlapCriteria; }
+      else {
       r=sqrt(rr);
       ComputeDampingCoefficients(r,arg2,&f6,&f8,&f10,&f12);
       ComputeDampingCoefficientsDerivatives(r,arg2,&f6d,&f8d,&f10d,&f12d);
@@ -11183,6 +11192,7 @@ void PotentialThirdDerivative(int typeA,int typeB,REAL rr,REAL *energy,REAL *fac
              -(f6*(6.0*arg3*rri8)+f8*(8.0*arg4*rri10)+f10*(10.0*arg5*rri12)+f12*(12.0*arg6*rri14)));
       fcVal2 = 0.0;
       fcVal3 = 0.0;
+      }
       break;
     case PELLENQ_NICHOLSON_SMOOTHED3:
       // {p_0*exp(-p_1*r)-f_6*p_2/r^6-f_8*p_3/r^8-f_10*p_4/r^10-f_12*p_5/r^12}*S(r)
