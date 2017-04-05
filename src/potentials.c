@@ -11431,6 +11431,34 @@ void PotentialThirdDerivative(int typeA,int typeB,REAL rr,REAL *energy,REAL *fac
       fcVal2 = 0.0;
       fcVal3 = 0.0;
       break;
+    case MM3_VDW:
+    case MM3_HYDROGEN_VDW:
+      // sqrt(p_0^i*p_0^j)*[1.84e5*exp(-12/P)-2.25*P^6]  if P>=3.02
+      // sqrt(p_0^i*p_0^j)*192.27*P^2                    if P<3.02
+      // ======================================================================================
+      // p_0     [kcal/mol]
+      // p_1     [A]
+      // p_3     [kcal/mol]  (non-zero for a shifted potential)
+      arg1=PotentialParms[typeA][typeB][0];
+      arg2=PotentialParms[typeA][typeB][1];
+      arg3=PotentialParms[typeA][typeB][2];
+      r=sqrt(rr);
+      P=arg2/r;
+      if(P>3.02)
+      {
+        U=arg1*192.270*SQR(P)-arg3;
+        fcVal1=-arg1*SQR(arg2)*384.54/(rr*rr);
+      }
+      else
+      {
+        rri3=arg1*2.25*CUBE(SQR(P));
+        exp_term=arg1*1.84e5*exp(-12.0/P);
+        U=exp_term-rri3-arg3;
+        fcVal1=-(12.0*exp_term/(arg2*r)-(6.0/rr)*rri3);
+      }
+      fcVal2=0.0;
+      fcVal3=0.0;
+      break;
     default:
       U=0.0;
       fcVal1=0.0;
