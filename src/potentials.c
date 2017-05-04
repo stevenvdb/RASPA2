@@ -11489,7 +11489,7 @@ void PotentialThirdDerivative(int typeA,int typeB,REAL rr,REAL *energy,REAL *fac
 
 REAL PotentialCorrection(int typeA,int typeB,REAL r)
 {
-  REAL arg1,arg2,arg3,arg4,arg5,arg6;
+  REAL arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11,arg12,arg13;
   REAL rr,ri3,ri9;
   REAL term1,term2,term3,term4,term5;
 
@@ -11741,8 +11741,103 @@ REAL PotentialCorrection(int typeA,int typeB,REAL r)
     case PELLENQ_NICHOLSON_SMOOTHED5:
       return 0.0;
     case MEDFF:
-      fprintf(stderr, "'PotentialCorrection' not implemented for MEDFF ('potential.c')\n");
-      exit(0);
+      // (p_0/r+p_1+p_2*r+p_3*r^2+p_4*r^3)*exp(-p_5*r)+(p_6/r+p_7)*exp(-p_8*r)-f_6*p_9/r^6-f_8*p_10/r^8
+      // ======================================================================================
+      // p_0/k_B [K A]
+      // p_1/k_B [K]
+      // p_2/k_B [K A^-1]
+      // p_3/k_B [K A^-2]
+      // p_4/k_B [K A^-3]
+      // p_5     [A^-1]
+      // p_6/k_B [K A]
+      // p_7/k_B [K]
+      // p_8     [A^-1]
+      // p_9/k_B [K A^6]
+      // p_10/k_B[K A^8]
+      // p_11    [A^-1]
+      // p_12/k_B[K]  (non-zero for a shifted potential)
+      arg1=PotentialParms[typeA][typeB][0];
+      arg2=PotentialParms[typeA][typeB][1];
+      arg3=PotentialParms[typeA][typeB][2];
+      arg4=PotentialParms[typeA][typeB][3];
+      arg5=PotentialParms[typeA][typeB][4];
+      arg6=PotentialParms[typeA][typeB][5];
+      arg7=PotentialParms[typeA][typeB][6];
+      arg8=PotentialParms[typeA][typeB][7];
+      arg9=PotentialParms[typeA][typeB][8];
+      arg10=PotentialParms[typeA][typeB][9];
+      arg11=PotentialParms[typeA][typeB][10];
+      arg12=PotentialParms[typeA][typeB][11];
+      arg13=PotentialParms[typeA][typeB][12];
+      /*
+    restart;
+    with(CodeGeneration):
+
+    tang := proc(n::integer)
+        local i, f:
+        f := 0;
+        for i from 0 to n do
+            f := f + x**i/factorial(i):
+        end do:
+        return 1-f*exp(-x):
+    end proc:
+
+    # Potential expression
+    f0 := (arg1/r+arg2+arg3*r+arg4*r*r+(arg5*r*r)*r)*exp(-arg6*r)+(arg7/r+arg8)*exp(-arg9*r)-tang(6)*arg10/r^6-tang(8)*arg11/r^8-arg13;
+    f0 := subs({x=alpha*r},f0);
+
+    # Assumptions, such that correct limit at infinity can be calculated
+    assume(alpha>0):
+    # Compute energy and pressure tail correction
+    f1 := simplify(integrate(f0*r**2,r=R..infinity));
+    # Take care of assumptions
+    f1 := simplify(subs({alpha='arg2'}, f1));
+    # Convert to C code
+    code1 := C([corr=f1], optimize, defaulttype = float, deducetypes = false,output=string):
+      */
+    REAL t1, t3, t4, t6, t7, t10, t12, t13, t14, t15, t22, t23, t25, t26, t27, t28, t32, t34, t38, t44, t48, t75, t76, t82, t90, t91, t96, t101, t104, t110, t115, t116, t121, t130, t144, t148, t160, t209, t212,corr;
+    t1 = arg12 * arg12;
+    t3 = r * r;
+    t4 = t3 * t3;
+    t6 = arg9 * arg9;
+    t7 = t6 * arg9;
+    t10 = exp(r * (arg6 + arg9));
+    t12 = arg6 * arg6;
+    t13 = t12 * t12;
+    t14 = t13 * t12;
+    t15 = t7 * t10 * t14;
+    t22 = t3 * r;
+    t23 = t4 * t22;
+    t25 = t10 * t23 * t14;
+    t26 = arg10 * t7;
+    t27 = t1 * t1;
+    t28 = t27 * arg12;
+    t32 = t4 * t3;
+    t34 = t10 * t32 * t14;
+    t38 = arg11 * t7;
+    t44 = t4 * r;
+    t48 = t1 * arg12;
+    t75 = exp(r * (arg9 + arg12));
+    t76 = t75 * t7;
+    t82 = exp(r * (arg6 + arg12));
+    t90 = r * (arg6 + arg9 + arg12);
+    t91 = exp(t90);
+    t96 = t75 * t32;
+    t101 = t4 * t4;
+    t104 = t13 * arg6;
+    t110 = t75 * t101 * r;
+    t115 = t75 * t101;
+    t116 = t12 * arg6;
+    t121 = 0.6720e4 * arg10 * t1 * t4 * t15 + 0.8064e4 * arg11 * arg12 * r * t15 + 0.56e2 * t25 * t26 * t28 + 0.448e3 * t34 * t26 * t27 + 0.10e2 * t34 * t38 * t27 * t1 + 0.66e2 * t28 * arg11 * t44 * t15 + 0.2128e4 * t48 * arg10 * t44 * t15 + 0.13440e5 * arg10 * arg12 * t22 * t15 + 0.4032e4 * arg11 * t1 * t3 * t15 + t25 * t38 * t27 * t48 + 0.1344e4 * arg11 * t48 * t22 * t15 + 0.336e3 * arg11 * t27 * t4 * t15 + 0.4838400e7 * arg5 * t44 * t76 + 0.80640e5 * arg8 * t44 * t82 * t14 + 0.8064e4 * t38 * t10 * t14 - 0.8064e4 * arg11 * t91 * t7 * t14 + 0.80640e5 * t96 * t13 * arg2 * t7 + 0.40320e5 * t75 * t101 * t3 * t104 * arg5 * t7 + 0.201600e6 * t110 * t13 * arg5 * t7 + 0.806400e6 * t115 * t116 * arg5 * t7;
+    t130 = t75 * t23;
+    t144 = t14 * arg8;
+    t148 = t82 * t32;
+    t160 = arg10 * t3;
+    t209 = 0.40320e5 * arg7 * t44 * t82 * arg9 * t14 + 0.40320e5 * t96 * t104 * arg1 * t7 + 0.40320e5 * arg1 * t44 * t76 * t13 + 0.40320e5 * t130 * t104 * arg2 * t7 + 0.80640e5 * arg2 * t44 * t76 * t116 + 0.40320e5 * t115 * t104 * arg3 * t7 + 0.241920e6 * arg3 * t44 * t76 * t12 + 0.120960e6 * t130 * t13 * arg3 * t7 + 0.967680e6 * arg4 * t44 * t76 * arg6 + 0.967680e6 * t96 * t12 * arg4 * t7 + 0.13440e5 * t160 * t15;
+    t212 = exp(-t90);
+    corr = (0.241920e6 * t96 * t116 * arg3 * t7 + 0.40320e5 * t110 * t104 * arg4 * t7 + 0.161280e6 * t115 * t13 * arg4 * t7 + 0.483840e6 * t130 * t116 * arg4 * t7 + 0.4838400e7 * t96 * arg6 * arg5 * t7 + 0.2419200e7 * t130 * t12 * arg5 * t7 + 0.40320e5 * t148 * t14 * arg7 * t6 - 0.13440e5 * t160 * t91 * t7 * t14 + 0.40320e5 * t82 * t23 * t144 * t6 + 0.80640e5 * t148 * t144 * arg9 + t121 + t209) * t212 / t44 / t7 / t14 / 0.40320e5;
+/*    printf("Tail correction %20.12f\n",corr);*/
+    return corr;
     case MEDFF_SMOOTHED3:
     case MEDFF_SMOOTHED5:
       return 0.0;
@@ -11829,8 +11924,9 @@ REAL PotentialCorrection(int typeA,int typeB,REAL r)
 
 REAL PotentialCorrectionPressure(int typeA,int typeB,REAL r)
 {
-  REAL arg1,arg2,arg3,arg4,arg5,arg6;
+  REAL arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11,arg12,arg13;
   REAL term1,term2,term3,term4,term5;
+  REAL t1,t2,t5,t6,t7,t10,t11,t12,t16,t25,t29,t30,t58;
 
   switch(PotentialType[typeA][typeB])
   {
@@ -12083,8 +12179,111 @@ REAL PotentialCorrectionPressure(int typeA,int typeB,REAL r)
     case PELLENQ_NICHOLSON_SMOOTHED5:
       return 0.0;
     case MEDFF:
-      fprintf(stderr, "'PotentialCorrectionPressure' not implemented for MEDFF ('potential.c')\n");
-      exit(0);
+      // (p_0/r+p_1+p_2*r+p_3*r^2+p_4*r^3)*exp(-p_5*r)+(p_6/r+p_7)*exp(-p_8*r)-f_6*p_9/r^6-f_8*p_10/r^8
+      // ======================================================================================
+      // p_0/k_B [K A]
+      // p_1/k_B [K]
+      // p_2/k_B [K A^-1]
+      // p_3/k_B [K A^-2]
+      // p_4/k_B [K A^-3]
+      // p_5     [A^-1]
+      // p_6/k_B [K A]
+      // p_7/k_B [K]
+      // p_8     [A^-1]
+      // p_9/k_B [K A^6]
+      // p_10/k_B[K A^8]
+      // p_11    [A^-1]
+      // p_12/k_B[K]  (non-zero for a shifted potential)
+      arg1=PotentialParms[typeA][typeB][0];
+      arg2=PotentialParms[typeA][typeB][1];
+      arg3=PotentialParms[typeA][typeB][2];
+      arg4=PotentialParms[typeA][typeB][3];
+      arg5=PotentialParms[typeA][typeB][4];
+      arg6=PotentialParms[typeA][typeB][5];
+      arg7=PotentialParms[typeA][typeB][6];
+      arg8=PotentialParms[typeA][typeB][7];
+      arg9=PotentialParms[typeA][typeB][8];
+      arg10=PotentialParms[typeA][typeB][9];
+      arg11=PotentialParms[typeA][typeB][10];
+      arg12=PotentialParms[typeA][typeB][11];
+      arg13=PotentialParms[typeA][typeB][12];
+      /*
+    restart;
+    with(CodeGeneration):
+
+    tang := proc(n::integer)
+        local i, f:
+        f := 0;
+        for i from 0 to n do
+            f := f + x**i/factorial(i):
+        end do:
+        return 1-f*exp(-x):
+    end proc:
+
+    # Potential expression
+    f0 := (arg1/r+arg2+arg3*r+arg4*r*r+(arg5*r*r)*r)*exp(-arg6*r)+(arg7/r+arg8)*exp(-arg9*r)-tang(6)*arg10/r^6-tang(8)*arg11/r^8-arg13;
+    f0 := subs({x=alpha*r},f0);
+
+    # Assumptions, such that correct limit at infinity can be calculated
+    assume(alpha>0):
+    # Compute energy and pressure tail correction
+    f1 := simplify(integrate(diff(f0,r)*r**3,r=R..infinity));
+    # Take care of assumptions
+    f1 := simplify(subs({alpha='arg2'}, f1));
+    # Convert to C code
+    code1 := C([corr=f1], optimize, defaulttype = float, deducetypes = false,output=string):
+      */
+    REAL t3, t4, t5, t6, t7, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18, t26, t41, t43, t44, t48, t50, t51, t54, t61, t66, t74, t83, t85, t86, t96, t103, t104, t108, t118, t124, t130, t135, t136, t140, t145, t147, t152, t165, t170, t201, t206, t252, t255, corr;
+    t3 = exp(r * (arg6 + arg9));
+    t4 = r * r;
+    t5 = t4 * r;
+    t6 = t4 * t4;
+    t7 = t6 * t5;
+    t9 = arg6 * arg6;
+    t10 = t9 * t9;
+    t11 = t10 * t9;
+    t12 = t3 * t7 * t11;
+    t13 = arg9 * arg9;
+    t14 = t13 * arg9;
+    t15 = arg11 * t14;
+    t16 = arg12 * arg12;
+    t17 = t16 * arg12;
+    t18 = t16 * t16;
+    t26 = t11 * t3 * t14;
+    t41 = t6 * t4;
+    t43 = t3 * t41 * t11;
+    t44 = t18 * t16;
+    t48 = t6 * t6;
+    t50 = t3 * t48 * t11;
+    t51 = t18 * t18;
+    t54 = arg10 * t14;
+    t61 = t18 * arg12;
+    t66 = t6 * r;
+    t74 = 0.80640e5 * arg10 * arg12 * t5 * t26 + 0.13104e5 * arg10 * t17 * t66 * t26 + 0.64512e5 * arg11 * arg12 * r * t26 + 0.32256e5 * arg11 * t16 * t4 * t26 + 0.10752e5 * arg11 * t17 * t5 * t26 + 0.534e3 * arg11 * t61 * t66 * t26 + 0.11e2 * t12 * t15 * t18 * t17 + 0.504e3 * t12 * t54 * t61 + 0.86e2 * t43 * t15 * t44 + t50 * t15 * t51 + 0.3024e4 * t43 * t54 * t18 + 0.56e2 * t50 * t54 * t44;
+    t83 = arg11 * t11;
+    t85 = r * (arg6 + arg9 + arg12);
+    t86 = exp(t85);
+    t96 = exp(r * (arg9 + arg12));
+    t103 = exp(r * (arg6 + arg12));
+    t104 = t11 * t103;
+    t108 = t11 * arg8;
+    t118 = t96 * t7;
+    t124 = t96 * t48 * r;
+    t130 = t96 * t48 * t4;
+    t135 = t103 * t7;
+    t136 = t11 * arg7;
+    t140 = t96 * t48;
+    t145 = 0.40320e5 * t96 * t48 * t5 * t11 * arg5 * t14 + 0.40320e5 * t118 * t11 * arg1 * t14 + 0.40320e5 * arg10 * t16 * t6 * t26 + 0.2688e4 * arg11 * t18 * t6 * t26 + 0.40320e5 * t140 * t11 * arg2 * t14 + 0.40320e5 * t124 * t11 * arg3 * t14 + 0.40320e5 * t130 * t11 * arg4 * t14 + 0.14515200e8 * arg5 * t66 * t96 * t14 + 0.40320e5 * t103 * t48 * t108 * t14 + 0.241920e6 * arg8 * t66 * t104 + 0.40320e5 * t135 * t136 * t14 + 0.64512e5 * t83 * t3 * t14 - 0.64512e5 * t83 * t86 * t14;
+    t147 = t10 * arg6;
+    t152 = t96 * t41;
+    t165 = t9 * arg6;
+    t170 = arg10 * t4;
+    t201 = 0.120960e6 * arg1 * t66 * t10 * t96 * t14 + 0.241920e6 * arg2 * t66 * t165 * t96 * t14 + 0.725760e6 * arg3 * t66 * t9 * t96 * t14 + 0.2903040e7 * arg4 * t66 * arg6 * t96 * t14 + 0.241920e6 * t152 * t10 * arg2 * t14 + 0.120960e6 * t118 * t147 * arg2 * t14 + 0.120960e6 * t140 * t147 * arg3 * t14 + 0.604800e6 * t124 * t10 * arg5 * t14 + 0.120960e6 * t130 * t147 * arg5 * t14 + 0.2419200e7 * t140 * t165 * arg5 * t14 - 0.80640e5 * t170 * t11 * t86 * t14 + 0.80640e5 * t170 * t26;
+    t206 = t103 * t41;
+    t252 = 0.120960e6 * t152 * t147 * arg1 * t14 + 0.362880e6 * t118 * t10 * arg3 * t14 + 0.725760e6 * t152 * t165 * arg3 * t14 + 0.483840e6 * t140 * t10 * arg4 * t14 + 0.1451520e7 * t118 * t165 * arg4 * t14 + 0.120960e6 * t124 * t147 * arg4 * t14 + 0.2903040e7 * t152 * t9 * arg4 * t14 + 0.14515200e8 * t152 * arg6 * arg5 * t14 + 0.7257600e7 * t118 * t9 * arg5 * t14 + 0.120960e6 * arg7 * t66 * t104 * arg9 + 0.241920e6 * t206 * t108 * arg9 + 0.120960e6 * t135 * t108 * t13 + 0.120960e6 * t206 * t136 * t13;
+    t255 = exp(-t85);
+    corr = -(t74 + t145 + t201 + t252) * t255 / t66 / t11 / t14 / 0.40320e5;
+    return corr;    
     case MEDFF_SMOOTHED3:
     case MEDFF_SMOOTHED5:
       return 0.0;

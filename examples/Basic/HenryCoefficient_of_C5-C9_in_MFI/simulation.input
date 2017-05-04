@@ -1,8 +1,8 @@
 SimulationType                MonteCarlo
-NumberOfCycles                10000
+NumberOfCycles                1000
 NumberOfInitializationCycles  0
-PrintEvery                    1000
-PrintPropertiesEvery          1000
+PrintEvery                    10
+PrintPropertiesEvery          10
 
 Forcefield                    GarciaPerez2006
 
